@@ -6,7 +6,8 @@ function Protected(props: PropsWithChildren<unknown>): ReactElement {
   const location = useLocation();
 
   // If we're not logged in, navigate to the auth page
-  if (null === null) { // currentUser === null
+  if (localStorage.getItem('ala-auth-token')) {
+    // currentUser === null
     return <Navigate to="/auth" state={{ from: location }} />;
   }
 
