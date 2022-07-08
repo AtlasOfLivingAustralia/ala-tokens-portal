@@ -10,6 +10,8 @@ import {
   Button,
 } from '@mantine/core';
 
+import { Prism } from '@mantine/prism';
+
 import {
   getClient,
   getToken,
@@ -42,7 +44,7 @@ function Auth(): ReactElement {
   return (
     <Container fluid style={{ display: 'flex' }}>
       <Center>
-        <Card shadow="lg" radius="xl" style={{ minWidth: 350, minHeight: 300 }}>
+        <Card shadow="lg" radius="xl" style={{ width: 500, minHeight: 300 }}>
           <Box px={16} style={{ display: 'flex', flexDirection: 'column' }}>
             <Card.Section
               style={{ display: 'flex', justifyContent: 'center' }}
@@ -60,7 +62,12 @@ function Auth(): ReactElement {
             <Text align="center" color="dimmed" mt={12}>
               {token ? 'You are authenticated' : 'You are not authenticated'}
             </Text>
-            <Button color="rust" mt={32} onClick={onClick}>
+            {token && (
+              <Prism language="json" style={{ width: 435 }} mt={24}>
+                {JSON.stringify(token, null, 2)}
+              </Prism>
+            )}
+            <Button color="rust" mt={32} mb={token ? 12 : 0} onClick={onClick}>
               {token ? 'Sign Out' : 'Sign In'}
             </Button>
           </Box>
