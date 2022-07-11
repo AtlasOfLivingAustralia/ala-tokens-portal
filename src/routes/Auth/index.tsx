@@ -15,6 +15,7 @@ import { Prism } from '@mantine/prism';
 import {
   getClient,
   getToken,
+  getAuthUrl,
   signInWithRedirect,
   signOut,
   OIDCAuthResult,
@@ -31,6 +32,7 @@ function Auth(): ReactElement {
         ['openid', 'email', 'profile', 'users:read'],
         'test'
       );
+      console.log(getAuthUrl(client, 'https://localhost:3000'));
       signInWithRedirect(client, 'http://localhost:3000');
     } else {
       signOut();
