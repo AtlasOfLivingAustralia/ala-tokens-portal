@@ -12,35 +12,9 @@ import {
 
 import { Prism } from '@mantine/prism';
 
-import {
-  getClient,
-  getToken,
-  getAuthUrl,
-  signInWithRedirect,
-  signOut,
-  OIDCAuthResult,
-  // eslint-disable-next-line import/no-relative-packages
-} from '../../../../ala-web-auth/dist';
-
 function Auth(): ReactElement {
-  const [token, setToken] = useState<OIDCAuthResult | null>(getToken());
-
-  const onClick = (): void => {
-    if (!token) {
-      const client = getClient(
-        'oidc-test-client-id',
-        ['openid', 'email', 'profile', 'users:read'],
-        'test'
-      );
-      console.log(getAuthUrl(client, 'https://localhost:3000'));
-      signInWithRedirect(client, 'http://localhost:3000');
-    } else {
-      signOut();
-      setToken(null);
-    }
-  };
-
-  console.log(token);
+  const onClick = (): void => console.log('testing!');
+  const token = false;
 
   // If we're waiting for an auth state update
   return (
