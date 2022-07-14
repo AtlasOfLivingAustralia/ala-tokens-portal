@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
 import {
   Card,
   Container,
@@ -11,10 +11,17 @@ import {
 } from '@mantine/core';
 
 import { Prism } from '@mantine/prism';
+import { useAuth } from 'react-oidc-context';
 
 function Auth(): ReactElement {
-  const onClick = (): void => console.log('testing!');
-  const token = false;
+  const auth = useAuth();
+  const onClick = useCallback(() => {
+    if (auth.isAuthenticated) {
+      auth.signoutRedirect();
+    } else {
+      auth.signinRedirect();
+    }
+  }, [auth]);
 
   // If we're waiting for an auth state update
   return (
@@ -36,15 +43,22 @@ function Auth(): ReactElement {
               ALA SPA Auth
             </Title>
             <Text align="center" color="dimmed" mt={12}>
-              {token ? 'You are authenticated' : 'You are not authenticated'}
+              {auth.isAuthenticated
+                ? 'You are authenticated'
+                : 'You are not authenticated'}
             </Text>
-            {token && (
+            {auth.isAuthenticated && (
               <Prism language="json" style={{ width: 435 }} mt={24}>
-                {JSON.stringify(token, null, 2)}
+                {JSON.stringify(auth.user, null, 2)}
               </Prism>
             )}
-            <Button color="rust" mt={32} mb={token ? 12 : 0} onClick={onClick}>
-              {token ? 'Sign Out' : 'Sign In'}
+            <Button
+              color="rust"
+              mt={32}
+              mb={auth.isAuthenticated ? 12 : 0}
+              onClick={onClick}
+            >
+              {auth.isAuthenticated ? 'Sign Out' : 'Sign In'}
             </Button>
           </Box>
         </Card>
