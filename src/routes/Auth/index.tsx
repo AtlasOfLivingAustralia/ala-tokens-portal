@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
 import {
   Card,
   Container,
@@ -11,36 +11,17 @@ import {
 } from '@mantine/core';
 
 import { Prism } from '@mantine/prism';
-
-import {
-  getClient,
-  getToken,
-  getAuthUrl,
-  signInWithRedirect,
-  signOut,
-  OIDCAuthResult,
-  // eslint-disable-next-line import/no-relative-packages
-} from '../../../../ala-web-auth/dist';
+import { useAuth } from 'react-oidc-context';
 
 function Auth(): ReactElement {
-  const [token, setToken] = useState<OIDCAuthResult | null>(getToken());
-
-  const onClick = (): void => {
-    if (!token) {
-      const client = getClient(
-        'oidc-test-client-id',
-        ['openid', 'email', 'profile', 'users:read'],
-        'test'
-      );
-      console.log(getAuthUrl(client, 'https://localhost:3000'));
-      signInWithRedirect(client, 'http://localhost:3000');
+  const auth = useAuth();
+  const onClick = useCallback(() => {
+    if (auth.isAuthenticated) {
+      auth.signoutRedirect();
     } else {
-      signOut();
-      setToken(null);
+      auth.signinRedirect();
     }
-  };
-
-  console.log(token);
+  }, [auth]);
 
   // If we're waiting for an auth state update
   return (
@@ -62,15 +43,22 @@ function Auth(): ReactElement {
               ALA SPA Auth
             </Title>
             <Text align="center" color="dimmed" mt={12}>
-              {token ? 'You are authenticated' : 'You are not authenticated'}
+              {auth.isAuthenticated
+                ? 'You are authenticated'
+                : 'You are not authenticated'}
             </Text>
-            {token && (
+            {auth.isAuthenticated && (
               <Prism language="json" style={{ width: 435 }} mt={24}>
-                {JSON.stringify(token, null, 2)}
+                {JSON.stringify(auth.user, null, 2)}
               </Prism>
             )}
-            <Button color="rust" mt={32} mb={token ? 12 : 0} onClick={onClick}>
-              {token ? 'Sign Out' : 'Sign In'}
+            <Button
+              color="rust"
+              mt={32}
+              mb={auth.isAuthenticated ? 12 : 0}
+              onClick={onClick}
+            >
+              {auth.isAuthenticated ? 'Sign Out' : 'Sign In'}
             </Button>
           </Box>
         </Card>

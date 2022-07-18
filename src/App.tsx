@@ -1,17 +1,20 @@
 import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider, Global } from '@mantine/core';
-
-import {
-  getRedirectResult,
-  // eslint-disable-next-line import/no-relative-packages
-} from '../../ala-web-auth/dist/index';
+import { AuthProvider } from 'react-oidc-context';
 
 // Routes
 import Routes from './routes';
 
-function App(): React.ReactElement {
-  getRedirectResult();
+// Config helper
+import config from './helpers/config';
+import Auth from './routes/Auth';
 
+if (import.meta.env.DEV) {
+  console.log(JSON.stringify(config, null, 2));
+}
+
+function App(): React.ReactElement {
+  console.log(window.location.href);
   return (
     <MantineProvider
       theme={{
@@ -47,9 +50,16 @@ function App(): React.ReactElement {
           },
         })}
       />
-      <BrowserRouter>
-        <Routes />
-      </BrowserRouter>
+      <AuthProvider
+        client_id={config.client_id}
+        authority={config.authority}
+        redirect_uri={config.redirect_uri}
+        onSigninCallback={(user) => {
+          console.log('TESTING', user);
+        }}
+      >
+        <Auth />
+      </AuthProvider>
     </MantineProvider>
   );
 }
