@@ -1,9 +1,9 @@
-import { BrowserRouter } from 'react-router-dom';
+// import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider, Global } from '@mantine/core';
 import { AuthProvider } from 'react-oidc-context';
 
 // Routes
-import Routes from './routes';
+// import Routes from './routes';
 
 // Config helper
 import config from './helpers/config';
@@ -14,7 +14,6 @@ if (import.meta.env.DEV) {
 }
 
 function App(): React.ReactElement {
-  console.log(window.location.href);
   return (
     <MantineProvider
       theme={{
