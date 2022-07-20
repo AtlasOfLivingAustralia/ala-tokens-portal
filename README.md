@@ -1,6 +1,6 @@
 # ALA OIDC React
 
-> A SPA React demo for OpenID Connect authentication.
+> A SPA React demo for OpenID Connect PKCE authentication.
 
 ## Setup & Running
 
