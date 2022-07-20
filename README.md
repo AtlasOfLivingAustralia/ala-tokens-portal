@@ -5,4 +5,4 @@
 ## Setup & Running
 
 1. Install dependencies with `yarn` / `npm i`.
-2. Run the app with `yarn dev` or `npm dev`.
+2. Run the app with `yarn dev` or `npm run dev`.
