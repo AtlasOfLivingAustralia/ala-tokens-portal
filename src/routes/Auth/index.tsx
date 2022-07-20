@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback } from 'react';
 import {
   Card,
   Container,
@@ -8,10 +8,14 @@ import {
   Text,
   Box,
   Button,
+  Loader,
 } from '@mantine/core';
 
 import { Prism } from '@mantine/prism';
 import { useAuth } from 'react-oidc-context';
+
+const LOGO_URL =
+  'https://www.ala.org.au/app/uploads/2020/06/ALA_Logo_Mark-only.png';
 
 function Auth(): ReactElement {
   const auth = useAuth();
@@ -23,6 +27,16 @@ function Auth(): ReactElement {
     }
   }, [auth]);
 
+  if (auth.isLoading) {
+    return (
+      <Container fluid style={{ display: 'flex' }}>
+        <Center>
+          <Loader color="rust" />
+        </Center>
+      </Container>
+    );
+  }
+
   // If we're waiting for an auth state update
   return (
     <Container fluid style={{ display: 'flex' }}>
@@ -33,11 +47,7 @@ function Auth(): ReactElement {
               style={{ display: 'flex', justifyContent: 'center' }}
               py={12}
             >
-              <Image
-                src="https://www.ala.org.au/app/uploads/2020/06/ALA_Logo_Mark-only.png"
-                width={75}
-                height={75}
-              />
+              <Image src={LOGO_URL} width={75} height={75} />
             </Card.Section>
             <Title align="center" order={3} mt={6}>
               ALA SPA Auth

@@ -54,7 +54,8 @@ function App(): React.ReactElement {
         authority={config.authority}
         redirect_uri={config.redirect_uri}
         onSigninCallback={(user) => {
-          console.log('TESTING', user);
+          console.log(user);
+          window.history.replaceState({ path: '/' }, '', '/');
         }}
       >
         <Auth />

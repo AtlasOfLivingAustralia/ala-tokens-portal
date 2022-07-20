@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 // Styles
-import 'mapbox-gl/dist/mapbox-gl.css';
 import './index.css';
 
 // Local components

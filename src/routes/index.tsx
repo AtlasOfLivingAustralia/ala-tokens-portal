@@ -10,7 +10,7 @@ function Routes(): JSX.Element {
   return (
     <Router>
       <Route
-        path="/editor/*"
+        path="/protected/*"
         element={
           <Protected>
             <div>Protected Route</div>
