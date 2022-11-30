@@ -1,13 +1,12 @@
-// import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider, Global } from '@mantine/core';
-import { AuthProvider } from 'react-oidc-context';
-
-// Routes
-// import Routes from './routes';
+import { useContext } from 'react';
+import { useState } from 'react';
+import { AuthContext, AuthContextProps, AuthProvider } from 'react-oidc-context';
 
 // Config helper
 import config from './helpers/config';
 import Auth from './routes/Auth';
+import UI from './routes/Auth/ui';
 
 if (import.meta.env.DEV) {
   console.log(JSON.stringify(config, null, 2));
@@ -49,17 +48,7 @@ function App(): React.ReactElement {
           },
         })}
       />
-      <AuthProvider
-        client_id={config.client_id}
-        authority={config.authority}
-        redirect_uri={config.redirect_uri}
-        onSigninCallback={(user) => {
-          console.log(user);
-          window.history.replaceState({ path: '/' }, '', '/');
-        }}
-      >
-        <Auth />
-      </AuthProvider>
+      <UI config={config} /> 
     </MantineProvider>
   );
 }
