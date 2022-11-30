@@ -28,7 +28,7 @@ function Auth(): ReactElement {
 
   
   const requestToken = useCallback(() => {
-      auth.signinRedirect();
+      auth.signinPopup();
   }, [auth]);
 
   const signOut = useCallback(() => {
@@ -47,9 +47,10 @@ function Auth(): ReactElement {
 
   // If we're waiting for an auth state update
   return (
+    
     <Container fluid style={{ display: 'flex' }}>
       <Center>
-        <Card shadow="lg" radius="xl" style={{ width: 500, minHeight: 300 }}>
+        <Card shadow="lg" radius="xl" style={{ width: 550, minHeight: 300 }}>
 
 
           <Box px={16} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -76,19 +77,19 @@ function Auth(): ReactElement {
                     mb={12}
                     onClick={requestToken}
                   >
-                    Request New Token
+                    Re-generate token
                   </Button>                    
                 </Group>
               </div>
             )}
-            {!auth.isAuthenticated && (
+            {!auth.isAuthenticated && auth.settings.client_id.length > 0 && (
               <Button
                   color="teal"
                   mt={32}
                   mb={12}
                   onClick={requestToken}
                 >
-                  Request Token
+                  Request token
                 </Button>                      
             )}            
 

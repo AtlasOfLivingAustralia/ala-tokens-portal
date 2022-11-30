@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useState } from 'react';
+import { ReactElement, useCallback, useContext, useReducer, useState } from 'react';
 import {
   Card,
   Container,
@@ -17,8 +17,9 @@ import {
 } from '@mantine/core';
 
 import { Prism } from '@mantine/prism';
-import { AuthProvider } from 'react-oidc-context';
+import { AuthContext, AuthProvider } from 'react-oidc-context';
 import Auth from '.';
+
 
 const LOGO_URL =
   'https://www.ala.org.au/app/uploads/2020/06/ALA_Logo_Mark-only.png';
@@ -29,10 +30,10 @@ interface AuthProps {
 
 const  UI: React.FC<AuthProps> = ({config}) => {
 
-    const [clientId, setClientId] = useState("");
-    const [clientSecret, setClientSecret] = useState("");
-    const [scope, setScope] = useState("openid");
-    const [active, setActive] = useState(0);
+  const [clientId, setClientId] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
+  const [scope, setScope] = useState("openid email profile roles");
+  const [active, setActive] = useState(0);
   const nextStep = () => setActive((current) => (current < 2 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
@@ -76,14 +77,14 @@ const  UI: React.FC<AuthProps> = ({config}) => {
                     label="Scope"
                     placeholder="openid email ala"
                     description="Scopes to include for the JWT"
-                    value={scope} onChange={(event) => setClientSecret(event.currentTarget.value)}  onKeyUp={(event) => setClientSecret(event.currentTarget.value)}  
+                    value={scope} onChange={(event) => setScope(event.currentTarget.value)}  onKeyUp={(event) => setScope(event.currentTarget.value)}  
                 />
 
                 <TextInput
                     label="ClientSecret (Optional)"
                     type='password'
                     description="Client secret of a registered application. Only required for clients registered as private client applications(eg. server side web application)."
-                    value={clientSecret} onChange={(event) => setScope(event.currentTarget.value)} onKeyUp={(event) => setScope(event.currentTarget.value)}
+                    value={clientSecret} onChange={(event) => setClientSecret(event.currentTarget.value)} onKeyUp={(event) => setClientSecret(event.currentTarget.value)}
                 />
 
                 </Stepper.Step>
@@ -91,24 +92,40 @@ const  UI: React.FC<AuthProps> = ({config}) => {
     
             <Group position="center" mt="xl">
                 <Button  variant="default" onClick={ active  > 0 ? prevStep : function(){}}>{active === 0 ? 'Request Client Details' :'Back' }</Button>
-                <Button   disabled={(active === 1  && clientId.length < 1) ||  active === 2} onClick={nextStep}> {active < 1 ? 'I have Client Details' :'Next' } </Button>
+                {active < 3 && <Button   disabled={(active === 1  && clientId.length < 1) ||  active === 2} onClick={nextStep}> {active < 1 ? 'I have Client Details' :'Next' } </Button>}
             </Group>
-          
-            {active === 2  && (
-              <AuthProvider
-              client_id={clientId}
-              client_secret={clientSecret}
-              authority={config.authority}
-              redirect_uri={config.redirect_uri}
-              scope={scope}
-              onSigninCallback={(user) => {
-                window.history.replaceState({ path: '/' }, '', '/');
-              }}
-            >
-            <Auth  />
-          </AuthProvider>
-            )}
 
+            {/* The AuthContext provided by AuthProvider does not seem to allow updating of the client_id, client_secret, scope which is required for this workflow on the docs portal 
+            to allow users to enter their client details. Rendering a new AuthProvider and therefore creating a new context each tome a user reaches the final step of the workflow gets around this issue.  */}
+
+            {active === 2  && 
+                        <AuthProvider
+                        client_id={clientId}
+                        client_secret={clientSecret}
+                        authority={config.authority}
+                        redirect_uri={config.redirect_uri}
+                        scope={scope}
+                        onSigninCallback={(user) => {
+                          window.history.replaceState({ path: '/' }, '', '/');
+                        }}
+                      >
+                         <Auth  />
+                    </AuthProvider>
+            }
+            {/* NOT entirely sure how this work but having This  AuthContext/AuthProvider seems to maintain the authentication state of the ABOVE provider when being redirected to callback url */}
+            {active !== 2  && 
+                      <AuthProvider
+                      client_id=""
+                      authority={config.authority}
+                      redirect_uri={config.redirect_uri}
+                      scope={scope}
+                      onSigninCallback={(user) => {
+                        window.history.replaceState({ path: '/' }, '', '/');
+                      }}
+                    >
+                       <Auth  />
+                  </AuthProvider>
+          }
           </Box>
         </Card>
       </Center>
