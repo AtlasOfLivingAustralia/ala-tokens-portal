@@ -36,10 +36,12 @@ function Auth(): ReactElement {
 
   const regenerateToken = useCallback(() => {
       setTokenRequested(false);
+      auth.signinPopup();
 }, [auth]);
 
   const signOut = useCallback(() => {
     auth.signoutPopup();
+    setTokenRequested(false);
   }, [auth]);
 
   const handleDownload = () =>{
@@ -70,7 +72,6 @@ function Auth(): ReactElement {
       </Container>
     );
   }
-
 
   // If we're waiting for an auth state update
   return (
@@ -104,6 +105,16 @@ function Auth(): ReactElement {
                   >
                     Download as JSON
                   </Button>                   
+                </Group>
+                <Group position='center'>
+                  <Button
+                      color="red"
+                      mt={32}
+                      mb={12}
+                      onClick={signOut}
+                    >
+                      Logout
+                    </Button>
                 </Group>
               </div>
             )}
