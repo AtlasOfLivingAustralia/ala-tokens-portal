@@ -7,7 +7,7 @@ import LargeLogo from '../src/ala-logo.png'
 // Config helper
 import config from './helpers/config';
 import UI from './routes/Auth/ui';
-import ClientDetails from './routes/Auth/client';
+import Faq from './components/faq';
 
 if (import.meta.env.DEV) {
   console.log(JSON.stringify(config, null, 2));
@@ -18,6 +18,8 @@ const LOGO_URL =
 
 function App(): React.ReactElement {
   const [opened, setOpened] = useState(false);
+
+  const [activeAside, setActiveAside] = useState("Credentials & Tokens");
 
   return (
     <MantineProvider 
@@ -58,9 +60,16 @@ function App(): React.ReactElement {
 
 
     <AppShell
+     styles={{
+      main: {
+        maxHeight: "100vh",
+        overflowY: "scroll",
+        overflowX: "hidden",
+      },
+    }}
       navbarOffsetBreakpoint="sm"
       asideOffsetBreakpoint="sm"
-      navbar={ <TokensNavbar opened={opened} />
+      navbar={ <TokensNavbar opened={opened} updateNavContent={setActiveAside} />
       }
       header={
         <Header height="10" p="sm">
@@ -74,12 +83,14 @@ function App(): React.ReactElement {
                 mr="xl"
               />
             </MediaQuery>
-            <Image width={200} style={{margin: '0px 50px 0px 0px'}}  src={LargeLogo} ></Image> <h3>Client Credentials & Tokens</h3>
+            <Image width={200} style={{margin: '0px 50px 0px 0px'}}  src={LargeLogo} ></Image> <h2>Client Credentials & Tokens</h2>
           </div>
         </Header>
       }
     >
-     <UI config={config} /> 
+     {activeAside === "Credentials & Tokens" && <UI config={config} /> }
+     {activeAside === "FAQ" && <Faq /> }
+
     </AppShell>
   </MantineProvider>
   );

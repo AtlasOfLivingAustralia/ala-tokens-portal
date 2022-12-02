@@ -1,28 +1,22 @@
-import { ReactElement, useCallback, useContext, useReducer, useState } from 'react';
+import { useState } from 'react';
 import {
   Card,
   Container,
   Center,
   Title,
-  Image,
-  Text,
   Box,
   Button,
-  Loader,
   Stepper,
   Group,
-  Step,
-  Input,
   TextInput,
   Transition,
 } from '@mantine/core';
 
-import { Prism } from '@mantine/prism';
-import { AuthContext, AuthProvider } from 'react-oidc-context';
+
 import Auth from '.';
 
 import ClientRegistration from './client';
-import { createURL } from '@remix-run/router/dist/history';
+import { AuthProvider } from 'react-oidc-context';
 
 
 const LOGO_URL =
@@ -36,7 +30,7 @@ const  UI: React.FC<AuthProps> = ({config}) => {
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
-  const [scope, setScope] = useState("openid email profile roles");
+  const [scopes, setScopes] = useState("openid email profile roles");
   const [active, setActive] = useState(0);
   const [clientFormVisible, setClientFormVisible] = useState(false);
 
@@ -46,7 +40,7 @@ const  UI: React.FC<AuthProps> = ({config}) => {
 
   // If we're waiting for an auth state update
   return (
-    <Container fluid style={{ width: '60%' }}>
+    <Container fluid style={{ width: '60%', minWidth:'600px', maxHeight:'100%'}}>
       <Center>
         <Card shadow="lg" radius="xl" style={{ width: "100%", minHeight: 300 }}>
 
@@ -56,23 +50,22 @@ const  UI: React.FC<AuthProps> = ({config}) => {
               style={{ display: 'flex', justifyContent: 'center' }}
               py={12}
             >
-              <Image src={LOGO_URL} width={75} height={75} />
             </Card.Section>
             <Title align="center" order={3} mt={6}>
-                Step by step guide for Client Registration and Token Generation {active}
+                Step by step guide for Client Registration and Token Generation 
             </Title>
             <br />
 
             <Stepper active={active} onStepClick={setActive} breakpoint="sm">
                 <Stepper.Step label="Client Registration" description="Register Client Application">
-                    <p>Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</p>
-                    <p>If you do not yet have Client Details,  click 'Register'</p>
+                    <h4>Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</h4>
+                    <p>If you do not yet have Client Details,  click 'Register'.</p>
 
                 </Stepper.Step>
                 <br />
                 <Stepper.Step label="Enter Client Details" description="Enter Client details e.g. Client ID and Secret of the registered application">
                   <TextInput
-                      label="ClientID"
+                      label="Client ID"
                       placeholder="exmaple-client-id"
                       description="Client ID of a registered application"
                       id='client-id'
@@ -81,10 +74,10 @@ const  UI: React.FC<AuthProps> = ({config}) => {
                   />
                   <br />  
                   <TextInput
-                      label="Scope"
+                      label="Scopes"
                       placeholder="openid email ala"
-                      description="Scopes to include for the JWT"
-                      value={scope} onInput={(event) => setScope(event.currentTarget.value)}  
+                      description="Scopes (resource permission) to assign for the access token"
+                      value={scopes} onInput={(event) => setScopes(event.currentTarget.value)}  
                   />
                   <br />
                   <TextInput
@@ -101,8 +94,8 @@ const  UI: React.FC<AuthProps> = ({config}) => {
             </Stepper>
     
             <Group position="center" mt="xl">
-                 <Button  variant="default" disabled={(clientFormVisible && active == 0)} onClick={ active  > 0 ? prevStep : function(){setClientFormVisible(!clientFormVisible)}}> {active === 0 ? 'Register' :'Back' }</Button>
-                {<Button  disabled={(active === 1  && clientId.length < 1) || active === 2} onClick={function(){nextStep();  setClientFormVisible(false)}}> {active < 1 ? 'I have Client Details' :'Next' } </Button>}
+                 <Button   variant="default"  disabled={(clientFormVisible && active == 0)} onClick={ active  > 0 ? prevStep : function(){setClientFormVisible(!clientFormVisible)}}> {active === 0 ? 'Register' :'Back' }</Button>
+                {<Button  disabled={(active === 1  && clientId.length < 1) || active === 2} onClick={function(){nextStep();  setClientFormVisible(false)}}> {active < 1 ? 'Enter Client Details' :'Next' } </Button>}
             </Group>
             <br/>
 
@@ -120,7 +113,7 @@ const  UI: React.FC<AuthProps> = ({config}) => {
                         client_secret={clientSecret}
                         authority={config.authority}
                         redirect_uri={config.redirect_uri}
-                        scope={scope}
+                        scope={scopes}
                         onSigninCallback={(user) => {
                           window.history.replaceState({ path: '/' }, '', '/');
                         }}
@@ -132,9 +125,10 @@ const  UI: React.FC<AuthProps> = ({config}) => {
             {active < 2  && 
                       <AuthProvider
                       client_id=""
+                      client_secret=""
                       authority={config.authority}
                       redirect_uri={config.redirect_uri}
-                      scope={scope}
+                      scope={scopes}
                       onSigninCallback={(user) => {
                         window.history.replaceState({ path: '/' }, '', '/');
                       }}

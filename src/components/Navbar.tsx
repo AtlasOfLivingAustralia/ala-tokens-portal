@@ -1,5 +1,5 @@
 import { Navbar, createStyles } from '@mantine/core';
-import { IconKey, IconLogout, IconQuestionMark } from '@tabler/icons';
+import { IconBackspace, IconExternalLink, IconHome, IconKey, IconLink, IconLinkOff, IconLogout, IconQuestionMark } from '@tabler/icons';
 import LargeLogo from '../../src/ala-logo.png'
 
 import { useState } from 'react';
@@ -7,9 +7,10 @@ import { useState } from 'react';
 
   interface NavProps {
     opened: Boolean;
+    updateNavContent: any;
 }
 
-const  TokensNavbar: React.FC<NavProps> = ({opened}) => {
+const  TokensNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
 
   const useStyles = createStyles((theme, _params, getRef) => {
     const icon = getRef('icon');
@@ -97,11 +98,12 @@ const  TokensNavbar: React.FC<NavProps> = ({opened}) => {
 
   const {classes, cx } = useStyles();
 
-  const [navBarActive, setNavbarActive] = useState('token');
+  const [navBarActive, setNavbarActive] = useState('Credentials & Tokens');
 
   const navBarOptions = [
-    { link: '', label: 'Credentials & Tokens', icon: IconKey },
-    { link: '', label: 'FAQ', icon: IconQuestionMark }
+    { link: 'https://docs.ala.org.au', label: 'Docs Portal', icon: IconExternalLink},
+    { link: '#', label: 'Credentials & Tokens', icon: IconKey },
+    { link: '#', label: 'FAQ', icon: IconQuestionMark }
   ];
 
 
@@ -112,7 +114,13 @@ const  TokensNavbar: React.FC<NavProps> = ({opened}) => {
       key={item.label}
       onClick={(event) => {
         event.preventDefault();
-        setNavbarActive(item.label);
+        if(item.label === "Docs Portal"){
+          window.open(item.link);
+        } else{
+          setNavbarActive(item.label);
+          updateNavContent(item.label)
+        }
+
       }}
     >
       <item.icon className={classes.linkIcon} stroke={1.5} />
@@ -121,7 +129,7 @@ const  TokensNavbar: React.FC<NavProps> = ({opened}) => {
   )); 
 
   return (
-    <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 230, lg: 230 }} className={classes.navbar}>
+    <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 230, lg: 230 }}  className={classes.navbar}>
         <Navbar.Section grow>
         {links}
         </Navbar.Section>
