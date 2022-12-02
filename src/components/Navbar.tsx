@@ -1,6 +1,5 @@
 import { Navbar, createStyles } from '@mantine/core';
-import { IconBackspace, IconExternalLink, IconHome, IconKey, IconLink, IconLinkOff, IconLogout, IconQuestionMark } from '@tabler/icons';
-import LargeLogo from '../../src/ala-logo.png'
+import { IconExternalLink, IconKey,  IconQuestionMark } from '@tabler/icons';
 
 import { useState } from 'react';
 
@@ -14,7 +13,6 @@ const  TokensNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
 
   const useStyles = createStyles((theme, _params, getRef) => {
     const icon = getRef('icon');
-    console.log(theme.primaryColor)
 
     return {
       navbar: {

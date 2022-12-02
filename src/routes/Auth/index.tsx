@@ -64,7 +64,6 @@ function Auth(): ReactElement {
     );
   }
 
-  // If we're waiting for an auth state update
   return (
     
     <Container fluid style={{ display: 'flex' }}>
@@ -76,7 +75,7 @@ function Auth(): ReactElement {
                   <Group position="center">
                       <div style={{textAlign: 'center', width: '650px'}}>
                       <Alert icon={<IconAlertCircle size={16} />} title="" color="green">
-                        The JWT i.e. <strong>access_token</strong>  below can now be used for protected API requests. For more details complex server-side usage of this token this please download the token and see usage examples <a target="_blank" href="https://github.com/AtlasOfLivingAustralia/jwt-usage-examples">here</a>.
+                        The JWT i.e. <strong>access_token</strong>  below can now be used for protected API requests. For more details on advanced server-side usage of this token please download the token and see usage examples <a target="_blank" href="https://github.com/AtlasOfLivingAustralia/jwt-usage-examples">here</a>.
                       </Alert> 
                       </div>
                   </Group>
