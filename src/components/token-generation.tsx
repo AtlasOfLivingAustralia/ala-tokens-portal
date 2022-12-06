@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useState } from 'react';
+import { useState } from 'react';
 import {
   Container,
   Center,
@@ -10,39 +10,65 @@ import {
   
 } from '@mantine/core';
 
+
 import { Prism } from '@mantine/prism';
-import {  useAuth } from 'react-oidc-context';
 import { IconAlertCircle, IconDownload} from '@tabler/icons';
+import { User, UserManager } from 'oidc-client-ts';
+
+// AuthProps type for config and user defined OAuth values 
+export type AuthProps =  {client_id: string, client_secret?: string; redirect_uri: string; authority: string, scope?: string, popup_post_logout_redirect_uri?: string};
+
+const Auth: React.FC<{clientDetails : AuthProps}> = ({clientDetails}) => {
+  // set and empty user state on initial setup.
+  const [user, setUser] = useState(new User({access_token:"", token_type:"", profile: {sub:"", aud:"", exp:0, iat: 0, iss:""}}));
+  // loading state
+  const [isLoading, setIsLoading] = useState(false);
+  // load values from prop clientDetails into OIDC UserManager
+  const userManager = new UserManager(clientDetails);
+
+  const [hasError, setHasError] = useState(false);
 
 
-function Auth(): ReactElement {
-  const auth = useAuth();
+  const signIn = async () =>{
+    /**
+     *  NOTE  on the OAuth Flow.
+     * 1. userManager.signinPopup() opens the authentication endpoint i.e. 'authority' in a popup window. 
+     * 2. upon successful authentication, the popup window redirects to redirect_uri e.g. '/callback' with a response from auth server.
+     * 3. '/callback' page initializes a new UserManager and calls signinPopupCallback in order to pass the data back to this page i.e. calling page when then closes the popup.
+     * 4. Once the data is passed back, the below promise will resolve.
+     * 
+     *  */ 
+    setHasError(false);
+    setIsLoading(true);
+    try{
+      const  user = await userManager.signinPopup();
+      setUser(user);
+    } catch (e) {
+       setHasError(true);
+    } finally {
+      setIsLoading(false);
+    }    
 
-  // keep track of whether token was recently requested. Workaround for auth.error (which does not show error final token request fails e.g. 401.)
-  const [tokenRequested, setTokenRequested] = useState(false);
-  const requestToken = useCallback(() => {
-      auth.signinPopup();
-      setTokenRequested(true)
-  }, [auth]);
+  }
 
-  const regenerateToken = useCallback(() => {
-      setTokenRequested(false);
-      auth.signinPopup();
-}, [auth]);
+  const signOut = async () =>{
+    // successful signoutPopup will  log out current user.
+    await userManager.signoutPopup();
+    // reset user info from current component state
+    resetUser(); 
+  }
 
-  const signOut = useCallback(() => {
-    auth.signoutPopup();
-    setTokenRequested(false);
-  }, [auth]);
+  // reset the user object
+  const resetUser  = () =>{setUser(new User({access_token:"", token_type:"", profile: {sub:"", aud:"", exp:0, iat: 0, iss:""}}))}
 
   const handleDownload = () =>{
     // create file in browser
     const fileName = "auth";
-    const json = JSON.stringify(auth.user, null, 2);
+    const json = JSON.stringify(user, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const href = URL.createObjectURL(blob);
 
-    // create "a" HTLM element with href to file
+    // create "a" HTML element with href to file
     const link = document.createElement("a");
     link.href = href;
     link.download = fileName + ".json";
@@ -54,7 +80,7 @@ function Auth(): ReactElement {
     URL.revokeObjectURL(href);
   }
 
-  if (auth.isLoading) {
+  if (isLoading) {
     return (
       <Container fluid style={{ display: 'flex' }}>
         <Center>
@@ -65,12 +91,11 @@ function Auth(): ReactElement {
   }
 
   return (
-    
     <Container fluid style={{ display: 'flex' }}>
       <Center>
           <Box px={1} style={{ display: 'flex', flexDirection: 'column'}}>
             <br />
-            {auth.isAuthenticated && (
+            {user.access_token && (
                 <div >
                   <Group position="center">
                       <div style={{textAlign: 'center', width: '650px'}}>
@@ -82,7 +107,7 @@ function Auth(): ReactElement {
                   <br />
                   
                   <Prism language="json" style={{width: 700}} mt={12}  >
-                      {JSON.stringify(auth.user, null, 2)}
+                      {JSON.stringify(user, null, 2)}
                   </Prism>
 
                   <Group position="center">
@@ -90,7 +115,7 @@ function Auth(): ReactElement {
                         color="teal"
                         mt={32}
                         mb={12}
-                        onClick={regenerateToken}
+                        onClick={signIn}
                       >
                         Re-generate token
                       </Button>
@@ -119,24 +144,28 @@ function Auth(): ReactElement {
                 </div>
   
             )}
-            {(!auth.isAuthenticated && auth.settings.client_id.length > 0) && (
+            {(!!hasError ) && (
+              <Alert icon={<IconAlertCircle size={16} />} title="Error! Unable to generate access token" color="red">
+                  Please ensure that your Credentials and Scope are correct and still valid.
+                  
+              </Alert>
+            )}  
+            
+            {(!user.access_token) && (
               <Button
                   color="teal"
                   mt={32}
                   mb={12}
-                  onClick={requestToken}
+                  onClick={signIn}
                 >
                   Request token
                 </Button>                      
             )}  
-            {(!!tokenRequested && !auth.isLoading &&  !auth.user) && (
-              <Alert icon={<IconAlertCircle size={16} />} title="Error! Unable to generate access token" color="red">
-                  Please ensure that your Credentials and Scope are correct and still valid.
-              </Alert>
-            )}     
+            
+   
 
-          </Box>
-      </Center>
+  </Box>
+</Center>
     </Container>
   );
 

@@ -13,26 +13,23 @@ import {
 } from '@mantine/core';
 
 
-import Auth from '.';
+import Auth, { AuthProps } from './token-generation';
 
-import ClientRegistration from './client';
-import { AuthProvider } from 'react-oidc-context';
+import ClientRegistration from './client-registration';
 
 
-const LOGO_URL =
-  'https://www.ala.org.au/app/uploads/2020/06/ALA_Logo_Mark-only.png';
-
-interface AuthProps {
-    config: any;
-}
-
-const  UI: React.FC<AuthProps> = ({config}) => {
+const  UI: React.FC<{config: AuthProps}> = ({config}) => {
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
-  const [scopes, setScopes] = useState("openid email profile roles");
+  const [scope, setScope] = useState("openid email profile roles");
   const [active, setActive] = useState(0);
   const [clientFormVisible, setClientFormVisible] = useState(false);
+
+  // return a AuthProps object and required configs with latest client details to be passed to the Auth component for token generation.
+  const clientDetails  = (): AuthProps => {
+      return {client_id:clientId, client_secret: clientSecret, scope, authority: config.authority, redirect_uri: config.redirect_uri, popup_post_logout_redirect_uri: config.popup_post_logout_redirect_uri}
+  }
 
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
@@ -77,7 +74,7 @@ const  UI: React.FC<AuthProps> = ({config}) => {
                       label="Scopes"
                       placeholder="openid email ala"
                       description="Scopes (resource permission) to assign for the access token"
-                      value={scopes} onInput={(event) => setScopes(event.currentTarget.value)}  
+                      value={scope} onInput={(event) => setScope(event.currentTarget.value)}  
                   />
                   <br />
                   <TextInput
@@ -90,6 +87,7 @@ const  UI: React.FC<AuthProps> = ({config}) => {
                 </Stepper.Step>
 
                 <Stepper.Step label="Token Generation" description="Generate a JWT token">
+                    <Auth clientDetails={clientDetails()}/>
                 </Stepper.Step>
             </Stepper>
     
@@ -103,38 +101,6 @@ const  UI: React.FC<AuthProps> = ({config}) => {
                 {(styles) => <div style={styles}><ClientRegistration/></div>}
               </Transition>
 
-
-            {/* The AuthContext provided by AuthProvider does not seem to allow updating of the client_id, client_secret, scope which is required for this workflow on the docs portal 
-            to allow users to enter their client details. Rendering a new AuthProvider and therefore creating a new context each tome a user reaches the final step of the workflow gets around this issue.  */}
-
-            {active >= 2  && 
-                        <AuthProvider
-                        client_id={clientId}
-                        client_secret={clientSecret}
-                        authority={config.authority}
-                        redirect_uri={config.redirect_uri}
-                        scope={scopes}
-                        onSigninCallback={(user) => {
-                          window.history.replaceState({ path: '/' }, '', '/');
-                        }}
-                      >
-                         <Auth />
-                    </AuthProvider>
-            }
-            {/* NOT entirely sure how this work but having This  AuthContext/AuthProvider seems to maintain the authentication state of the ABOVE provider when being redirected to callback url */}
-            {active < 2  && 
-                      <AuthProvider
-                      client_id=""
-                      client_secret=""
-                      authority={config.authority}
-                      redirect_uri={config.redirect_uri}
-                      scope={scopes}
-                      onSigninCallback={(user) => {
-                        window.history.replaceState({ path: '/' }, '', '/');
-                      }}
-                    >
-                  </AuthProvider>
-          }
           </Box>
         </Card>
       </Center>

@@ -1,16 +1,6 @@
-import {
-    createStyles,
-    Title,
-    Container,
-    Accordion,
-    ThemeIcon,
-    MantineProvider,
-    Box,
-  } from '@mantine/core';
-  import { IconPlus } from '@tabler/icons';
-  
-function Faq(): React.ReactElement {
+import {Box} from '@mantine/core';
 
+function Faq(): React.ReactElement {
     return (
         <Box
         sx={(theme) => ({

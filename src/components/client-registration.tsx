@@ -11,7 +11,7 @@ Tooltip,
 Collapse,
 ActionIcon,
 } from '@mantine/core';
-import { IconBrandTwitter, IconBrandYoutube, IconBrandInstagram, IconToggleLeft, IconToggleRight, IconCheckbox } from '@tabler/icons';
+import { IconToggleLeft, IconToggleRight } from '@tabler/icons';
 import { ReactElement, useState } from 'react';
 
 const useStyles = createStyles((theme) => ({

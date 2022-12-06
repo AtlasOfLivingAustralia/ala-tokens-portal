@@ -9,7 +9,7 @@ import { useState } from 'react';
     updateNavContent: any;
 }
 
-const  TokensNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
+const  AppNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
 
   const useStyles = createStyles((theme, _params, getRef) => {
     const icon = getRef('icon');
@@ -135,4 +135,4 @@ const  TokensNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
   );
 }
 
-export default TokensNavbar;
+export default AppNavbar;
