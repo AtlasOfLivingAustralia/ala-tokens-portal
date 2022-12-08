@@ -40,7 +40,7 @@ aws cloudformation deploy \
     --parameter-overrides \
         pEnvironment=$environment \
         pCloudFormationServiceRole=$CLOUDFORMATION_SERVICE_ROLE \
-        pAppStackName=$APP_STACK_NAME-$clean_branch \
+        pAppStackName=$APP_STACK_NAME \
         pCodeBuildServiceRole=$CODEBUILD_SERVICE_ROLE \
         pCodePipelineServiceRole=$CODEPIPELINE_SERVICE_ROLE \
         pArtifactsBucket=$ARTIFACTS_BUCKET \

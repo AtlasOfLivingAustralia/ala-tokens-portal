@@ -33,6 +33,8 @@ template_vals = {
     "ssl_certificate"             : os.environ['SSL_CERTIFICATE'],
     "clean_branch"                : os.environ['CLEAN_BRANCH'],
     "branch"                      : os.environ['SRC_BRANCH'],
+    "bucket_name"                 : os.environ['SOURCE_BUCKET'],
+    "bucket_path"                 : os.environ['BUCKET_PATH'],
     "commit_id"                   : os.environ['COMMIT_ID'],
     "build"                       : os.environ['CODEBUILD_BUILD_NUMBER']
 }
