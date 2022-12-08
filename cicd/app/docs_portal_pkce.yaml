@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Docs portal PKCE token generator
+
+Parameters:
+  pEnvironment:
+    Type: String
+    Description: The AWS environment this belongs to
+  pBucketName:
+    Type: String
+    Description: The bucket name for the site
+  pBucketPath:
+    Type: String
+    Description: Optional path that the files are stored under in the bucket
+  pCleanBranch:
+    Type: String
+    Description: A cleaned version of the code branch name
+    Default: development
+  pHostedZone:
+    Type: String
+    Description: The hosted zone the site is accessed under
+  pSubDomain:
+    Type: String
+    Description: The subdomain the site is accessed on
+  pSslCertificate:
+    Type: String
+    Description: The arn of the SSL certificate to be used 
+
+Resources:
+  
+  DocsPortalPkceBucket:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub ${pBucketName}
+      LifecycleConfiguration:
+        Rules:
+          - Id: delete incomplete uploads
+            AbortIncompleteMultipartUpload:
+               DaysAfterInitiation: 1
+            Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: TRUE
+        BlockPublicPolicy: TRUE
+        IgnorePublicAcls: TRUE
+        RestrictPublicBuckets: TRUE
+      Tags:
+        - Key: component
+          Value: website
+        - Key: Name
+          Value: !Sub docs-portal-pkce-${pEnvironment}
+
+  DocsPortalPkceBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref DocsPortalPkceBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Join [ '', ['arn:aws:s3:::', !Ref DocsPortalPkceBucket ,'/*' ]]
+            Principal: 
+              AWS: !Join [ '', [ 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ', !Ref DocsPortalPkceCloudFrontOai ]]
+
+  DocsPortalPkceDnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: !Sub "${pSubDomain}.${pHostedZone}"
+      Comment: !Sub docs portal pkce token domain for the ${pEnvironment} environment
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt DocsPortalPkceCloudFrontDistro.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+      HostedZoneName: !Sub "${pHostedZone}."
+
+  DocsPortalPkceCloudFrontDistro:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: DocsPortalPkceBucket
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Sub "${pSubDomain}.${pHostedZone}"
+        Comment: !Sub CF Distribution for the docs portal pkce token site ${pEnvironment}
+        DefaultCacheBehavior:
+          AllowedMethods: 
+            - GET
+            - HEAD
+          CachedMethods: 
+            - GET
+            - HEAD
+          CachePolicyId: !Ref DocsPortalPkceCachePolicy 
+          Compress: true
+          TargetOriginId: docs-portal-pkce-s3
+          ViewerProtocolPolicy: redirect-to-https 
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: false
+        Origins:
+          - DomainName: !Sub "${pBucketName}.s3.${AWS::Region}.amazonaws.com"
+            Id: docs-portal-pkce-s3
+            S3OriginConfig:
+              OriginAccessIdentity: !Join ['', ['origin-access-identity/cloudfront/', !Ref DocsPortalPkceCloudFrontOai ]]
+            OriginPath: !Sub "/${pBucketPath}"
+        ViewerCertificate:
+          AcmCertificateArn: !Ref pSslCertificate
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+      Tags:
+        - Key: component
+          Value: cdn
+
+  DocsPortalPkceCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties: 
+      CachePolicyConfig: 
+        Comment: !Sub CF Cache Policy for the docs portal pkce token site ${pEnvironment}
+        DefaultTTL: 300
+        MaxTTL: 86400
+        MinTTL: 1
+        Name: !Sub DocsPortalPkce-cache-Policy-${pEnvironment}
+        ParametersInCacheKeyAndForwardedToOrigin: 
+          CookiesConfig: 
+            CookieBehavior: none
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+          HeadersConfig: 
+            HeaderBehavior: none
+          QueryStringsConfig: 
+            QueryStringBehavior: whitelist
+            QueryStrings: 
+              - cb
+
+  DocsPortalPkceCloudFrontOai:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub CF Origin Access Identity for the docs portal pkce ${pEnvironment}
+
+
+Outputs:
+  DocsPortalPkceBucketName:
+    Value: !Ref DocsPortalPkceBucket
+  DocsPortalPkceBucketArn:
+    Value: !GetAtt DocsPortalPkceBucket.Arn
+  DocsPortalPkceCloudFrontDistributionId:
+    Value: !Ref DocsPortalPkceCloudFrontDistro
