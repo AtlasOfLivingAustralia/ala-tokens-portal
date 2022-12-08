@@ -80,7 +80,7 @@ Resources:
             Value: !Ref pArtifactsBucket
       Source:
         Type: CODEPIPELINE
-        BuildSpec: cicd/npm_build_buildspec.yaml
+        BuildSpec: cicd/pipeline/npm_build_buildspec.yaml
       TimeoutInMinutes: 10
 
   EmptyBucket:
@@ -100,7 +100,7 @@ Resources:
             Value: !Ref pArtifactsBucket
       Source:
         Type: CODEPIPELINE
-        BuildSpec: cicd/empty_bucket_buildspec.yaml
+        BuildSpec: cicd/pipeline/empty_bucket_buildspec.yaml
       TimeoutInMinutes: 5
 
 
