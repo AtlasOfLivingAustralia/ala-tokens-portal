@@ -86,7 +86,7 @@ Resources:
   EmptyBucket:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: !Sub asbp-empty-bucket-${pEnvironment}
+      Name: !Sub docs-portal-pkce-empty-bucket-${pEnvironment}
       Description: Empty the source s3 bucket before updating
       ServiceRole: !Ref pCodeBuildServiceRole
       Artifacts:
@@ -287,19 +287,7 @@ Resources:
         - Key: Name
           Value: !Ref AWS::StackName
 
-  EmptyBucketPdLogGroup:
-    Type: AWS::Logs::LogGroup
-    DeletionPolicy: Delete
-    Properties:
-      LogGroupName: !Sub
-                       - /aws/codebuild/${ProjectName}
-                       - ProjectName: !Ref EmptyBucket
-      RetentionInDays: 30
-      Tags:
-        - Key: Name
-          Value: !Ref AWS::StackName
-
-  EmptyBucketTdLogGroup:
+  EmptyBucketLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Delete
     Properties:
