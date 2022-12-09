@@ -182,6 +182,7 @@ Resources:
               Provider: CodeBuild
             Configuration:
               ProjectName: !Ref BuildCode
+              PrimarySource: SourceArtifact
               EnvironmentVariables: '[
                                        { "name":"SRC_BRANCH", "value":"#{CheckoutSrcNS.BranchName}" },
                                        { "name":"COMMIT_ID", "value":"#{CheckoutSrcNS.CommitId}" }
@@ -190,7 +191,6 @@ Resources:
             InputArtifacts:
               - Name: SourceArtifact
               - Name: ExportConfigArtifact
-            PrimarySource: SourceArtifact
             OutputArtifacts:
               - Name: BuildCodeArtifact
             RunOrder: 1
