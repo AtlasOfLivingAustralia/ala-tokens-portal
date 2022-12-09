@@ -15,8 +15,9 @@ phases:
       - npm i
   pre_build:
     commands:
-      - echo running tests...
-      - npm run test
+      # it would be great to have tests here
+      - #echo running tests...
+      - #npm run test
   build:
     commands:
       - echo building...
