@@ -8,10 +8,17 @@ env:
 phases:
   install:
     on-failure: ABORT
-    runtime-versions:
-      nodejs: 16
     commands:
-      - echo installing...
+      - env
+      - find ./
+      # The latest AWS ubuntu build container only supports up to node 16 out of the box
+      # so we manually install it ourself ( currently using node 18 )
+      - echo removing the system version of node
+      - apt-get remove -y nodejs
+      - echo adding the specified version of node
+      - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+      - apt-get update
+      - apt-get -y install nodejs
       - npm i
   pre_build:
     commands:
