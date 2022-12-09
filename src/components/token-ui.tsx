@@ -22,7 +22,7 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
-  const [scope, setScope] = useState("openid email profile roles");
+  const [scope, setScope] = useState("openid email profile");
   const [active, setActive] = useState(0);
   const [clientFormVisible, setClientFormVisible] = useState(false);
 
