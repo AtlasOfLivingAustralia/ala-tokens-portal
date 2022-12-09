@@ -81,7 +81,7 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Sub "${pSubDomain}.${pHostedZone}"
-        Comment: !Sub CF Distribution for the docs portal pkce token site ${pEnvironment}
+        Comment: !Sub docs portal pkce token site ${pEnvironment}
         DefaultCacheBehavior:
           AllowedMethods: 
             - GET
