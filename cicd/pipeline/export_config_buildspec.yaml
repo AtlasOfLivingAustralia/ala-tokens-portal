@@ -13,6 +13,7 @@ env:
     - APP_STACK_FILE
     - SOURCE_BUCKET
     - BUCKET_PATH
+    - MAX_AGE
 
 phases:
 
