@@ -190,6 +190,7 @@ Resources:
             InputArtifacts:
               - Name: SourceArtifact
               - Name: ExportConfigArtifact
+            PrimarySource: SourceArtifact
             OutputArtifacts:
               - Name: BuildCodeArtifact
             RunOrder: 1
