@@ -48,11 +48,11 @@ phases:
       # docs portal pkce cloudformation template config
       - echo Generating the docs portal pkce stack template config
       - cicd/pipeline/gen_template_config.py  --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
-      # create the vite build environment, .env.production is the default so we put everything in there
-      - echo VITE_APP_VERSION=$VITE_APP_VERSION > .env.production1
-      - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production1
-      - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production1
-      - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production1
+      # create the vite build config, .env.production is the default so we put everything in there
+      - echo VITE_APP_VERSION=$VITE_APP_VERSION > .env.production
+      - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production
+      - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production
+      - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production
     finally:
       - #echo This always runs
       - #notify Slack on failure
@@ -67,6 +67,6 @@ artifacts:
   files:
     - cicd/app/$APP_STACK_FILE
     - cicd/app/docs_portal_pkce_template_config.json
-    - .env.production1
+    - .env.production
   name: BuildTemplateConfigArtifact
   discard-paths: no
