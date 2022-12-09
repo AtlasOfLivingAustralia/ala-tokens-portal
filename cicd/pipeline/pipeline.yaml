@@ -188,7 +188,8 @@ Resources:
                                      ]'
             Namespace: BuildCodeNS
             InputArtifacts:
-              - Name: 'SourceArtifact'
+              - Name: SourceArtifact
+              - Name: ExportConfigArtifact
             OutputArtifacts:
               - Name: BuildCodeArtifact
             RunOrder: 1
@@ -206,7 +207,7 @@ Resources:
                                      ]'
             Namespace: EmptyBucketPreDeployNS
             InputArtifacts:
-              - Name: 'SourceArtifact'
+              - Name: SourceArtifact
             RunOrder: 2
           - Name: UploadFilesToS3
             ActionTypeId:
