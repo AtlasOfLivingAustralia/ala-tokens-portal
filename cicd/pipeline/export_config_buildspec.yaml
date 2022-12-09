@@ -11,6 +11,8 @@ env:
   exported-variables:
     - CODEBUILD_BUILD_NUMBER
     - APP_STACK_FILE
+    - SOURCE_BUCKET
+    - BUCKET_PATH
 
 phases:
 
