@@ -87,7 +87,7 @@ run_app() {
   fi
 
 	docker run --rm -d -v "$(PWD)":"/build" \
-                        -p 127.0.0.1:80:3000 \
+                        -p 127.0.0.1:3000:3000 \
                         -w /build \
                         -e docker_user=`id -u` \
                         -e docker_group=`id -g` \
