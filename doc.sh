@@ -82,7 +82,7 @@ run_app() {
   container_id=$(docker container ls -qf "ancestor=pkce-build-container")
 
   if [ ! -z $container_id ] ; then 
-     echo "Server already running on http://127.0.0.1/" 
+     echo "Server already running on http://127.0.0.1:3000/" 
      exit 0
   fi
 
@@ -95,7 +95,7 @@ run_app() {
                          pkce-build-container:latest \
                          npm run dev
 
-  echo "Vite dev server running on http://127.0.0.1/"
+  echo "Vite dev server running on http://127.0.0.1:3000/"
 }
 
 usage() {
