@@ -45,9 +45,6 @@ build_app() {
   rm -rf dist
 	docker run --rm -v "$(PWD)":"/build" \
                         -w /build \
-                        -e docker_user=`id -u` \
-                        -e docker_group=`id -g` \
-                        -e MOUNT_DIR=/build \
                          pkce-build-container:latest \
                          npm install; npm run build
 
@@ -89,9 +86,6 @@ run_app() {
 	docker run --rm -d -v "$(PWD)":"/build" \
                         -p 127.0.0.1:3000:3000 \
                         -w /build \
-                        -e docker_user=`id -u` \
-                        -e docker_group=`id -g` \
-                        -e MOUNT_DIR=/build \
                          pkce-build-container:latest \
                          npm run dev
 
