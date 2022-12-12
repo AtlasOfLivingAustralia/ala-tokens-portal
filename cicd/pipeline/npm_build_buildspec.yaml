@@ -10,11 +10,9 @@ phases:
     on-failure: ABORT
     commands:
       # The latest AWS ubuntu build container only supports up to node 16 out of the box
-      # so we manually install it ourself ( currently using node 18 )
-      - echo removing the system version of node
-      - apt-get remove -y nodejs
+      # so we manually install it ourself using the $NODE_VERSION defined in conf.ini
       - echo adding the specified version of node
-      - curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+      - curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
       - apt-get update
       - apt-get -y install nodejs
       # node installs
@@ -26,7 +24,7 @@ phases:
       - #npm run test
   build:
     commands:
-      # copy the Vite config here
+      # copy the Vite config that was built in the Export Config task
       - cp $CODEBUILD_SRC_DIR_ExportConfigArtifact/.env.production .
       - echo building...
       - npm run build
