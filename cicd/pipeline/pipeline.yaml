@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Code pipeline for security scan list
+Description: Code pipeline for docsportal pkce
 
 Parameters:
   pEnvironment:
@@ -185,6 +185,7 @@ Resources:
               PrimarySource: SourceArtifact
               EnvironmentVariables: '[
                                        { "name":"SRC_BRANCH", "value":"#{CheckoutSrcNS.BranchName}" },
+                                       { "name":"NODE_VERSION", "value":"#{ExportConfigNS.NODE_VERSION}" },
                                        { "name":"COMMIT_ID", "value":"#{CheckoutSrcNS.CommitId}" }
                                      ]'
             Namespace: BuildCodeNS
