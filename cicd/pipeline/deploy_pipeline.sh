@@ -2,7 +2,7 @@
 set -ueo pipefail
 
 ###
-# Deploy the codepipeline for server scan
+# Deploy the codepipeline
 # You must have AWS CLI authentication for this to run. 
 
 # must be called with first arg "prod" to launch in production
