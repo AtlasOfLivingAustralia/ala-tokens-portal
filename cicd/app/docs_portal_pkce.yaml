@@ -25,6 +25,11 @@ Parameters:
     Type: String
     Description: The arn of the SSL certificate to be used 
 
+Conditions:
+  IsDev: !Equals 
+    - !Ref pEnvironment
+    - development
+
 Resources:
   
   DocsPortalPkceBucket:
@@ -122,7 +127,7 @@ Resources:
         DefaultTTL: 300
         MaxTTL: 86400
         MinTTL: 1
-        Name: !Sub DocsPortalPkce-cache-Policy-${pEnvironment}
+        Name: !If [ IsDev, !Sub "DocsPortalPkce-cache-Policy-${pCleanBranch}", !Sub "DocsPortalPkce-cache-Policy-${pEnvironment}" ]
         ParametersInCacheKeyAndForwardedToOrigin: 
           CookiesConfig: 
             CookieBehavior: none
