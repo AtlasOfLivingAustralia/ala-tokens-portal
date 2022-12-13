@@ -1,0 +1,73 @@
+version: 0.2
+###
+# This build project exports any variables needed for later stages and actions,
+# creates the Vite environment configs and builds the template configs used to launch
+# the CloudFormation templates
+
+env:
+  shell: bash
+  variables:
+    DEBIAN_FRONTEND: "noninteractive"
+  exported-variables:
+    - CODEBUILD_BUILD_NUMBER
+    - APP_STACK_FILE
+    - SOURCE_BUCKET
+    - BUCKET_PATH
+    - MAX_AGE
+    - NODE_VERSION
+
+phases:
+
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo Running on $(lsb_release -d | cut -f2)
+      - echo aws-cli version $(aws --version)
+    finally:
+      - #echo This always runs even if the update or install command fails
+      - #notify Slack on failure
+
+
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - echo source branch is $SRC_BRANCH
+      - echo clean branch is $CLEAN_BRANCH
+      - echo Environment is $ENVIRONMENT
+      - echo generating environment vars...
+      - cicd/pipeline/gen_env_vars.py --env $ENVIRONMENT --clean-branch $CLEAN_BRANCH --conf config.ini > env.txt
+      - echo loading config..
+      - set -a ; source env.txt ; set +a
+    finally:
+      - #echo This always runs
+      - #notify Slack on failure
+
+  build:
+    commands:
+      - echo Entered the build phase...
+      # docs portal pkce cloudformation template config
+      - echo Generating the docs portal pkce stack template config
+      - cicd/pipeline/gen_template_config.py  --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
+      # create the vite build config, .env.production is the default so we put everything in there
+      - echo VITE_APP_VERSION=$VITE_APP_VERSION > .env.production
+      - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production
+      - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production
+      - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production
+    finally:
+      - #echo This always runs
+      - #notify Slack on failure
+
+
+  post_build:
+    commands:
+      - #echo Entered the post_build phase...
+      - #notify Slack
+
+artifacts:
+  files:
+    - cicd/app/$APP_STACK_FILE
+    - cicd/app/docs_portal_pkce_template_config.json
+    - .env.production
+  name: BuildTemplateConfigArtifact
+  discard-paths: no
