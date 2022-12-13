@@ -91,6 +91,9 @@ Resources:
             - HEAD
           CachePolicyId: !Ref DocsPortalPkceCachePolicy 
           Compress: true
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt DocsPortalPkceCloudFrontFunction.FunctionMetadata.FunctionARN
           TargetOriginId: docs-portal-pkce-s3
           ViewerProtocolPolicy: redirect-to-https 
         DefaultRootObject: index.html
@@ -138,6 +141,25 @@ Resources:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub CF Origin Access Identity for the docs portal pkce ${pEnvironment}
 
+  DocsPortalPkceCloudFrontFunction:
+    Type: AWS::CloudFront::Function
+    Properties: 
+      AutoPublish: true
+      FunctionCode: |
+                      function handler(event) {
+                        var request = event.request;
+
+                        if (!request.uri.includes('.')) {
+                          request.uri = "/index.html";
+                          request.querystring = {}
+                        }
+
+                        return request;
+                      }
+      FunctionConfig: 
+        Comment: Rewrite non static requests to index.html for the React SPA
+        Runtime: cloudfront-js-1.0
+      Name: Docs-pkce-react-SPA-rewrite
 
 Outputs:
   DocsPortalPkceBucketName:
