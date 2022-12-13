@@ -25,6 +25,11 @@ Parameters:
     Type: String
     Description: The arn of the SSL certificate to be used 
 
+Conditions:
+  IsDev: !Equals 
+    - !Ref pEnvironment
+    - development
+
 Resources:
   
   DocsPortalPkceBucket:
@@ -91,6 +96,9 @@ Resources:
             - HEAD
           CachePolicyId: !Ref DocsPortalPkceCachePolicy 
           Compress: true
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt DocsPortalPkceCloudFrontFunction.FunctionMetadata.FunctionARN
           TargetOriginId: docs-portal-pkce-s3
           ViewerProtocolPolicy: redirect-to-https 
         DefaultRootObject: index.html
@@ -119,7 +127,7 @@ Resources:
         DefaultTTL: 300
         MaxTTL: 86400
         MinTTL: 1
-        Name: !Sub DocsPortalPkce-cache-Policy-${pEnvironment}
+        Name: !If [ IsDev, !Sub "DocsPortalPkce-cache-Policy-${pCleanBranch}", !Sub "DocsPortalPkce-cache-Policy-${pEnvironment}" ]
         ParametersInCacheKeyAndForwardedToOrigin: 
           CookiesConfig: 
             CookieBehavior: none
@@ -138,6 +146,25 @@ Resources:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub CF Origin Access Identity for the docs portal pkce ${pEnvironment}
 
+  DocsPortalPkceCloudFrontFunction:
+    Type: AWS::CloudFront::Function
+    Properties: 
+      AutoPublish: true
+      FunctionCode: |
+                      function handler(event) {
+                        var request = event.request;
+
+                        if (!request.uri.includes('.')) {
+                          request.uri = "/index.html";
+                          request.querystring = {}
+                        }
+
+                        return request;
+                      }
+      FunctionConfig: 
+        Comment: Rewrite non static requests to index.html for the React SPA
+        Runtime: cloudfront-js-1.0
+      Name: Docs-pkce-react-SPA-rewrite
 
 Outputs:
   DocsPortalPkceBucketName:
