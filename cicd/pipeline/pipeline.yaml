@@ -229,7 +229,7 @@ Resources:
 
       - Name: Teardown
         Actions:
-          - Name: Approval
+          - Name: ApprovalForAppTeardown
             ActionTypeId:
               Owner: AWS
               Category: Approval
@@ -265,6 +265,26 @@ Resources:
               StackName: !Ref pAppStackName
               RoleArn: !Ref pCloudFormationServiceRole
             RunOrder: 3
+          - Name: ApprovalForPipelineTeardown
+            ActionTypeId:
+              Owner: AWS
+              Category: Approval
+              Version: 1
+              Provider: Manual
+            Configuration:
+              CustomData: Approval required to tear down this stack
+            RunOrder: 4
+          - Name: TeardownCodePipeline
+            ActionTypeId:
+              Owner: AWS
+              Category: Deploy
+              Version: 1
+              Provider: CloudFormation
+            Configuration:
+              ActionMode: DELETE_ONLY
+              StackName: !Ref AWS::StackName
+              RoleArn: !Ref pCloudFormationServiceRole
+            RunOrder: 5
 
   CodeBuildLogGroup:
     Type: AWS::Logs::LogGroup
