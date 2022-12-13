@@ -61,7 +61,7 @@ phases:
 
   post_build:
     commands:
-      - #echo Entered the post_build phase...
+      - echo all looking good 👍 Stack will be launched on https://${SUB_DOMAIN}.${HOSTED_ZONE}
       - #notify Slack
 
 artifacts:
