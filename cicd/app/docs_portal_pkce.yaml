@@ -166,7 +166,9 @@ Resources:
       FunctionConfig: 
         Comment: Rewrite non static requests to index.html for the React SPA
         Runtime: cloudfront-js-1.0
-      Name: Docs-pkce-react-SPA-rewrite
+      Name: !Sub
+              - "Docs-pkce-react-SPA-rewrite-${ResourceName}"
+              - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
 
 Outputs:
   DocsPortalPkceBucketName:
