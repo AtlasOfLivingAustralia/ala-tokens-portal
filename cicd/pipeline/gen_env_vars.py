@@ -15,8 +15,13 @@ parser.add_argument("--clean-branch", "-cb", help="The clean branch name, used f
 
 args = parser.parse_args()
 
+config_defaults = {
+                     'CLEAN_BRANCH' : args.clean_branch,
+                     'ENVIRONMENT'  : args.env
+                  }
+
 # read the config file
-config = configparser.ConfigParser(defaults={ 'CLEAN_BRANCH' : args.clean_branch }, interpolation=configparser.ExtendedInterpolation())
+config = configparser.ConfigParser(defaults=config_defaults, interpolation=configparser.ExtendedInterpolation())
 config.read(args.conf)
 
 # get values for the relevant environment
