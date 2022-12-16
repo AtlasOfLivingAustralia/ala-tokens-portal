@@ -127,7 +127,9 @@ Resources:
         DefaultTTL: 300
         MaxTTL: 86400
         MinTTL: 1
-        Name: !If [ IsDev, !Sub "DocsPortalPkce-cache-Policy-${pCleanBranch}", !Sub "DocsPortalPkce-cache-Policy-${pEnvironment}" ]
+        Name: !Sub
+                - "DocsPortalPkce-cache-Policy-${ResourceName}"
+                - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
         ParametersInCacheKeyAndForwardedToOrigin: 
           CookiesConfig: 
             CookieBehavior: none
