@@ -127,7 +127,9 @@ Resources:
         DefaultTTL: 300
         MaxTTL: 86400
         MinTTL: 1
-        Name: !If [ IsDev, !Sub "DocsPortalPkce-cache-Policy-${pCleanBranch}", !Sub "DocsPortalPkce-cache-Policy-${pEnvironment}" ]
+        Name: !Sub
+                - "DocsPortalPkce-cache-Policy-${ResourceName}"
+                - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
         ParametersInCacheKeyAndForwardedToOrigin: 
           CookiesConfig: 
             CookieBehavior: none
@@ -164,7 +166,9 @@ Resources:
       FunctionConfig: 
         Comment: Rewrite non static requests to index.html for the React SPA
         Runtime: cloudfront-js-1.0
-      Name: Docs-pkce-react-SPA-rewrite
+      Name: !Sub
+              - "Docs-pkce-react-SPA-rewrite-${ResourceName}"
+              - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
 
 Outputs:
   DocsPortalPkceBucketName:
