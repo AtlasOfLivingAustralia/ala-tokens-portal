@@ -102,7 +102,7 @@ function ClientRegistration(): ReactElement {
         const email="mailto:support@ala.org.au"
         const body = `Hello There, %0d%0a %0d%0a This is a user generated request from the ALA Docs Portal for Client Application Registration  in the ALA Auth System. Please find the details below. %0d%0a
             1. Application Name / Access Reason: ${appName} %0d%0a
-            2. Callback URL: ${callbackUrl ? callbackUrl + ', https://docs.test.ala.org.au': 'https://docs.test.ala.org.au'} %0d%0a
+            2. Callback URL: ${callbackUrl ? callbackUrl + ', https://tokens.ala.org.au': 'https://tokens.ala.org.au'} %0d%0a
             3. Resource Owner: ${resourceOwner} %0d%0a
             4. Scopes: ${scopes ? scopes: 'openid email profile'} %0d%0a
             5. Resource Owner Contact: ${resourceOwnerEmail} %0d%0a
