@@ -10,12 +10,16 @@ import {
   Group,
   TextInput,
   Transition,
+  Header,
+  Text,
+  Alert,
 } from '@mantine/core';
 
 
 import Auth, { AuthProps } from './token-generation';
 
 import ClientRegistration from './client-registration';
+import { IconInfoCircle } from '@tabler/icons';
 
 
 const  UI: React.FC<{config: AuthProps}> = ({config}) => {
@@ -55,8 +59,9 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
 
             <Stepper active={active} onStepClick={setActive} breakpoint="sm">
                 <Stepper.Step label="Client Registration" description="Register Client Application">
-                    <h4>Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</h4>
-                    <p>If you do not yet have Client Details,  click 'Register'.</p>
+                    <br />
+                    <Alert icon={<IconInfoCircle size={16} />} color="blue"> Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</Alert>
+                    <p>If you do not yet have Client Details,  click 'Register'and follow the registration process.</p>
 
                 </Stepper.Step>
                 <br />
