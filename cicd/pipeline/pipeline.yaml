@@ -39,12 +39,19 @@ Parameters:
     Type: String
     Description: Codestar connection ARN
 
+Conditions:
+  IsDev: !Equals
+    - !Ref pEnvironment
+    - development
+
 Resources:
  
   ExportConfig:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: !Sub ${pProductName}-export-config-${pCleanBranch}
+      Name: !Sub
+              - "${pProductName}-export-congig-${ResourceName}"
+              - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
       Description: Load the environment and build the CloudFormation template config file
       ServiceRole: !Ref pCodeBuildServiceRole
       Artifacts:
@@ -66,7 +73,9 @@ Resources:
   BuildCode:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: !Sub ${pProductName}-build-site-${pCleanBranch}
+      Name: !Sub
+              - "${pProductName}-build-site-${ResourceName}"
+              - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
       Description: Build the docsportal pkce site
       ServiceRole: !Ref pCodeBuildServiceRole
       Artifacts:
@@ -86,7 +95,9 @@ Resources:
   EmptyBucket:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: !Sub ${pProductName}-empty-bucket-${pCleanBranch}
+      Name: !Sub
+              - "${pProductName}-empty-bucket-${ResourceName}"
+              - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
       Description: Empty the source s3 bucket before updating
       ServiceRole: !Ref pCodeBuildServiceRole
       Artifacts:
@@ -107,7 +118,9 @@ Resources:
   Pipeline:
     Type: "AWS::CodePipeline::Pipeline"
     Properties:
-      Name: !Sub ${pProductName}-${pCleanBranch}
+      Name: !Sub
+              - "${pProductName}-${ResourceName}"
+              - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
       RoleArn: !Ref pCodePipelineServiceRole
       ArtifactStore:
         Type: S3
