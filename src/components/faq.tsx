@@ -16,7 +16,7 @@ function Faq(): React.ReactElement {
           },
         })}
       >
-        Faq content goes here
+        FAQs coming soon!
       </Box>
     );
   }
