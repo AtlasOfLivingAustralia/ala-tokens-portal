@@ -93,7 +93,7 @@ function ClientRegistration(): ReactElement {
     const [resourceOwner, setResourceOwner] = useState("");
     const [resourceOwnerEmail, setResourceOwnerEmail] = useState("");
     const [additionalInfo, setAdditionalInfo] = useState("");
-    const [scopes, setScopes] = useState("openid email profile"); 
+    const [scopes, setScopes] = useState("openid email profile roles"); 
 
     const [showOptionalFields, setShowOptionalFields] = useState(false)
 ;
@@ -104,7 +104,7 @@ function ClientRegistration(): ReactElement {
             1. Application Name / Access Reason: ${appName} %0d%0a
             2. Callback URL: ${callbackUrl ? callbackUrl + ', https://tokens.ala.org.au': 'https://tokens.ala.org.au'} %0d%0a
             3. Resource Owner: ${resourceOwner} %0d%0a
-            4. Scopes: ${scopes ? scopes: 'openid email profile'} %0d%0a
+            4. Scopes: ${scopes ? scopes: 'openid email profile roles'} %0d%0a
             5. Resource Owner Contact: ${resourceOwnerEmail} %0d%0a
             6. Additional Info: ${additionalInfo} %0d%0a
         ` + "%0d%0aRegards, %0d%0a Auto-generated via ALA Docs Portal "
