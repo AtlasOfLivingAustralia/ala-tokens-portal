@@ -116,7 +116,7 @@ function ClientRegistration(): ReactElement {
                     e.preventDefault();
                 }}
             >
-                Sumbit
+                Submit
             </a>
         );
     }
@@ -131,7 +131,7 @@ function ClientRegistration(): ReactElement {
             <div>
             <Title className={classes.title}>Client Application Registration</Title>
             <Text className={classes.description} mt="sm" mb={30}>
-                Please provide details in the adjacent form for Client Registration. Once registered, you will be provided with Client ID and Secret required for token generation and refresh. 
+                Please provide details in the adjacent form for Client Registration. Once registered, our team will provide you with Client ID and Secret required for token generation and refresh. 
             </Text>
 
             </div>
@@ -181,10 +181,10 @@ function ClientRegistration(): ReactElement {
                             value={scopes}
                             onChange={(event) => setScopes(event.target.value)}
                         />
-                        <Tooltip   position="bottom" className={classes.toolTip} label="The callback/redirect for your application ALA should redirect to after authentication. This is only required if you are planning to generate JWTs on your own front-end application(s) via PKCE or Implict OAuth flows.">
+                        <Tooltip   position="bottom" className={classes.toolTip} label="The callback/redirect for your application ALA should redirect to after authentication. This is only required if you are planning to generate JWTs on your own front-end application(s) via PKCE or Implicit OAuth flows.">
                             <TextInput
                                 label="Callback URL (Optional)"
-                                placeholder="e.g. https://myapp.exmaple.com"
+                                placeholder="e.g. https://myapp.example.com"
                                 classNames={{ input: classes.input, label: classes.inputLabel }}
                                 value={callbackUrl}
                                 onChange={(event) => setCallbackUrl(event.target.value)}
