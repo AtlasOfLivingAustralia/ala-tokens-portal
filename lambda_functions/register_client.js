@@ -1,5 +1,5 @@
 const AWS = require("aws-sdk");
-var ses = new AWS.SES({ region: "ap-southease-2" });
+var ses = new AWS.SES({ region: "ap-southeast-2" });
 
 const SOURCE_EMAIL= process.env.SOURCE_EMAIL;
 const DEST_EMAIL = process.env.DEST_EMAIL;
@@ -10,7 +10,9 @@ exports.handler =  async (event, context) => {
             statusCode: 400,
             body: JSON.stringify('Bad request'),
         };
-    }
+    } 
+    
+   
     const body = `Hello There, %0d%0a %0d%0a This is a user generated request from the ALA Docs Portal for Client Application Registration  in the ALA Auth System. Please find the details below. %0d%0a
     1. Application Name / Access Reason: ${event.appName} %0d%0a
     2. Callback URL: ${event.callbackUrl} %0d%0a
@@ -19,7 +21,7 @@ exports.handler =  async (event, context) => {
     5. Resource Owner Contact: ${event.resourceOwnerEmail} %0d%0a
     6. Additional Info: ${event.additionalInfo} %0d%0a "%0d%0aRegards, %0d%0a Auto-generated via ALA Docs Portal "
     `
-    const emailparams = {
+    const emailParams = {
         Destination: {
           ToAddresses: [DEST_EMAIL],
         },
@@ -35,17 +37,29 @@ exports.handler =  async (event, context) => {
       
   
     try {
-      const x = await ses.sendEmail(emailparams).promise();
-      return {
-        statusCode: 200,
-        body: "Registration submitted successfully!"
-      };
-  } catch (e) {
-    console.log(e)
-      return {
-        statusCode: 500,
-        body: "Error. Unable to submit request"
-      };
-  }
+      const promise = await ses.sendEmail(emailParams).promise();
+      // handle promise's fulfilled/rejected states
+      promise.then(
+        function(data) {
+           return {
+            statusCode: 200,
+            body: "Request submitted successfully!"
+          };
+        },
+        function(error) {
+            console.log(error)
+            return {
+              statusCode: 500,
+              body: "Error. Unable to submit request to ALA Support"
+            };
+        }
+      );
+    } catch (e) {
+      console.log(e)
+        return {
+          statusCode: 500,
+          body: "Error. Unable to submit request to ALA Support"
+        };
+    }
     
 };
