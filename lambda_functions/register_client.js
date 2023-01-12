@@ -37,23 +37,12 @@ exports.handler =  async (event, context) => {
       
   
     try {
-      const promise = await ses.sendEmail(emailParams).promise();
-      // handle promise's fulfilled/rejected states
-      promise.then(
-        function(data) {
-           return {
-            statusCode: 200,
-            body: "Request submitted successfully!"
-          };
-        },
-        function(error) {
-            console.log(error)
-            return {
-              statusCode: 500,
-              body: "Error. Unable to submit request to ALA Support"
-            };
-        }
-      );
+      // using async/await required .promise() to be called as per https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/using-async-await.html
+      const result = await ses.sendEmail(emailParams).promise();
+      return {
+        statusCode: 200,
+        body: "Request submitted successfully!"
+      };
     } catch (e) {
       console.log(e)
         return {
