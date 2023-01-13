@@ -16,13 +16,14 @@ import {
 } from '@mantine/core';
 
 
-import Auth, { AuthProps } from './token-generation';
+import Auth from './token-generation';
 
 import ClientRegistration from './client-registration';
 import { IconInfoCircle } from '@tabler/icons';
+import { AuthConfig } from '../helpers/config';
 
 
-const  UI: React.FC<{config: AuthProps}> = ({config}) => {
+const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
@@ -30,8 +31,8 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
   const [active, setActive] = useState(0);
   const [clientFormVisible, setClientFormVisible] = useState(false);
 
-  // return a AuthProps object and required configs with latest client details to be passed to the Auth component for token generation.
-  const clientDetails  = (): AuthProps => {
+  // return a AuthConfig object and required configs with latest client details to be passed to the Auth component for token generation.
+  const clientDetails  = (): AuthConfig => {
       return {client_id:clientId, client_secret: clientSecret, scope, authority: config.authority, redirect_uri: config.redirect_uri, popup_post_logout_redirect_uri: config.popup_post_logout_redirect_uri}
   }
 
@@ -103,7 +104,7 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
             <br/>
 
             <Transition mounted={clientFormVisible} transition="scale-y" duration={500} timingFunction="ease">
-                {(styles) => <div style={styles}><ClientRegistration/></div>}
+                {(styles) => <div style={styles}><ClientRegistration config={config}/></div>}
               </Transition>
 
           </Box>

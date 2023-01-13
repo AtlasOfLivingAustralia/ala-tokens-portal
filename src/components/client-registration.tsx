@@ -12,7 +12,9 @@ Collapse,
 ActionIcon,
 } from '@mantine/core';
 import { IconToggleLeft, IconToggleRight } from '@tabler/icons';
-import { ReactElement, useState } from 'react';
+import { useState } from 'react';
+import { AuthConfig } from '../helpers/config';
+
 
 const useStyles = createStyles((theme) => ({
     wrapper: {
@@ -85,7 +87,7 @@ const useStyles = createStyles((theme) => ({
 
 
 
-function ClientRegistration(): ReactElement {
+const  ClientRegistration: React.FC<{config: AuthConfig}> = ({config}) => {
     const { classes } = useStyles();
     
     const [appName, setAppName] = useState("");
@@ -94,31 +96,29 @@ function ClientRegistration(): ReactElement {
     const [resourceOwnerEmail, setResourceOwnerEmail] = useState("");
     const [additionalInfo, setAdditionalInfo] = useState("");
     const [scopes, setScopes] = useState("openid email profile roles"); 
+    const [showOptionalFields, setShowOptionalFields] = useState(false);
 
-    const [showOptionalFields, setShowOptionalFields] = useState(false)
-;
+    const submitRequest =  () =>{
+        const payload = {
+            "appName": appName,
+            "callbackUrl": callbackUrl ? callbackUrl + ', https://tokens.ala.org.au': 'https://tokens.ala.org.au',
+            "resourceOwner": resourceOwner,
+            "scopes": scopes ? scopes: 'openid email profile roles',
+            "resourceOwnerEmail": resourceOwnerEmail,
+            "additionalInfo": additionalInfo
+        }
 
-    const MailTo = () =>{
-        const email="mailto:support@ala.org.au"
-        const body = `Hello There, %0d%0a %0d%0a This is a user generated request from the ALA Docs Portal for Client Application Registration  in the ALA Auth System. Please find the details below. %0d%0a
-            1. Application Name / Access Reason: ${appName} %0d%0a
-            2. Callback URL: ${callbackUrl ? callbackUrl + ', https://tokens.ala.org.au': 'https://tokens.ala.org.au'} %0d%0a
-            3. Resource Owner: ${resourceOwner} %0d%0a
-            4. Scopes: ${scopes ? scopes: 'openid email profile roles'} %0d%0a
-            5. Resource Owner Contact: ${resourceOwnerEmail} %0d%0a
-            6. Additional Info: ${additionalInfo} %0d%0a
-        ` + "%0d%0aRegards, %0d%0a Auto-generated via ALA Docs Portal "
-        const mailto = `${email}?subject=Request for ALA Client Application Registration&cc=${resourceOwnerEmail}&body=${body}`
-        return (
-            <a
-                onClick={(e) => {
-                    window.location.href = mailto;
-                    e.preventDefault();
-                }}
-            >
-                Submit
-            </a>
-        );
+          const options = {
+            method: "POST",
+            body: JSON.stringify(payload)
+          };
+
+          const request = new Request(config.tokens_api + '/register', options);
+          fetch(request, {mode: 'cors'}).then(response =>{
+            console.log(response);
+          }).catch(e =>{
+              console.log(e)
+          });
     }
 
 
@@ -203,7 +203,7 @@ function ClientRegistration(): ReactElement {
                 </Collapse>
 
                 <Group position="right" mt="md">
-                    <Button type="submit" disabled={!appName || !resourceOwner || !resourceOwnerEmail} className={classes.control}> <MailTo></MailTo></Button>
+                    <Button  disabled={!appName || !resourceOwner || !resourceOwnerEmail} className={classes.control} onClick={() => submitRequest()}> Submit </Button>
                 </Group>
             </div>
         </SimpleGrid>

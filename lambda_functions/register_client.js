@@ -5,7 +5,7 @@ const SOURCE_EMAIL= process.env.SOURCE_EMAIL;
 const DEST_EMAIL = process.env.DEST_EMAIL;
 
 exports.handler =  async (event, context) => {
-    if(!event.appName || !event.callbackUrl || !event.resourceOwner || !event.scopes || !event.resourceOwnerEmail || !event.additionalInfo){
+    if(!event.appName || !event.resourceOwner || !event.resourceOwnerEmail){
         return {
             statusCode: 400,
             body: JSON.stringify('Bad request'),

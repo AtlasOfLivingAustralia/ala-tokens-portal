@@ -54,6 +54,7 @@ phases:
       - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production
       - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production
       - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production
+      - echo VITE_TOKENS_API=$VITE_TOKENS_API >> .env.production
     finally:
       - #echo This always runs
       - #notify Slack on failure
