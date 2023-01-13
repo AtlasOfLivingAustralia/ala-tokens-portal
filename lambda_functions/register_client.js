@@ -13,13 +13,19 @@ exports.handler =  async (event, context) => {
     } 
     
    
-    const body = `Hello There, %0d%0a %0d%0a This is a user generated request from the ALA Docs Portal for Client Application Registration  in the ALA Auth System. Please find the details below. %0d%0a
-    1. Application Name / Access Reason: ${event.appName} %0d%0a
-    2. Callback URL: ${event.callbackUrl} %0d%0a
-    3. Resource Owner: ${event.resourceOwner} %0d%0a
-    4. Scopes: ${event.scopes} %0d%0a
-    5. Resource Owner Contact: ${event.resourceOwnerEmail} %0d%0a
-    6. Additional Info: ${event.additionalInfo} %0d%0a "%0d%0aRegards, %0d%0a Auto-generated via ALA Docs Portal "
+    const body = `Hello There,   
+    
+      This is a user generated request from the ALA Docs Portal for Client Application Registration in the ALA Auth System. Please find the details below. 
+      1. Application Name / Access Reason: ${event.appName} 
+      2. Callback URL: ${event.callbackUrl} 
+      3. Resource Owner: ${event.resourceOwner} 
+      4. Scopes: ${event.scopes} 
+      5. Resource Owner Contact: ${event.resourceOwnerEmail} 
+      6. Additional Info: ${event.additionalInfo}
+
+  Regards,
+  Auto-generated via ALA Docs Portal 
+
     `
     const emailParams = {
         Destination: {
