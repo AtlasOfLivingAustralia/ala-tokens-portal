@@ -13,13 +13,14 @@ import {
   Header,
   Text,
   Alert,
+  Notification,
 } from '@mantine/core';
 
 
 import Auth from './token-generation';
 
 import ClientRegistration from './client-registration';
-import { IconInfoCircle } from '@tabler/icons';
+import { IconCheck, IconInfoCircle } from '@tabler/icons';
 import { AuthConfig } from '../helpers/config';
 
 
@@ -30,6 +31,7 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
   const [scope, setScope] = useState("openid email profile roles");
   const [active, setActive] = useState(0);
   const [clientFormVisible, setClientFormVisible] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   // return a AuthConfig object and required configs with latest client details to be passed to the Auth component for token generation.
   const clientDetails  = (): AuthConfig => {
@@ -38,6 +40,13 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
 
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
+
+  // set registration success state and set  clientFormVisible to false to prevent it from appearing again it after reset
+  const updateRegistrationSuccess = (status: boolean) => {
+    setRegistrationSuccess(status);
+    setClientFormVisible(false);
+
+  }
 
 
   // If we're waiting for an auth state update
@@ -103,9 +112,13 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
             </Group>
             <br/>
 
-            <Transition mounted={clientFormVisible} transition="scale-y" duration={500} timingFunction="ease">
-                {(styles) => <div style={styles}><ClientRegistration config={config}/></div>}
+            <Transition mounted={clientFormVisible && !registrationSuccess} transition="scale-y" duration={100} timingFunction="ease">
+                {(styles) => <div style={styles}><ClientRegistration config={config} updateRegistrationSuccess={updateRegistrationSuccess}/></div>}
               </Transition>
+
+              { registrationSuccess  && <Notification disallowClose={true} icon={<IconCheck size={18} />} color="teal" title="Registration submitted successfully">
+               ALA support will be in contact with you shortly.
+        </Notification> }
 
           </Box>
         </Card>
