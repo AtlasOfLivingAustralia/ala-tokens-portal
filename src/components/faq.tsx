@@ -2,7 +2,7 @@ import {Accordion, Box, Container} from '@mantine/core';
 
 function Faq(): React.ReactElement {
     return (
-        <div style={{"width":"90%"}}>
+        <div style={{padding:"0 20% 0 10%"}}>
           <Accordion>
             <Accordion.Item label="Why do I need a token?">
                 ALA aggregates data from many providers, and most of these data are open and freely accessible to all. However, some data are private for their intended audience only, such as for user accounts, location data for sensitive species, and administration/edit access to particular projects. 
