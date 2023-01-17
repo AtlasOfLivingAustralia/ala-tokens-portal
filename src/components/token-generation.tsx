@@ -14,11 +14,9 @@ import {
 import { Prism } from '@mantine/prism';
 import { IconAlertCircle, IconDownload} from '@tabler/icons';
 import { User, UserManager } from 'oidc-client-ts';
+import { AuthConfig } from '../helpers/config';
 
-// AuthProps type for config and user defined OAuth values 
-export type AuthProps =  {client_id: string, client_secret?: string; redirect_uri: string; authority: string, scope?: string, popup_post_logout_redirect_uri?: string};
-
-const Auth: React.FC<{clientDetails : AuthProps}> = ({clientDetails}) => {
+const Auth: React.FC<{clientDetails : AuthConfig}> = ({clientDetails}) => {
   // set and empty user state on initial setup.
   const [user, setUser] = useState(new User({access_token:"", token_type:"", profile: {sub:"", aud:"", exp:0, iat: 0, iss:""}}));
   // loading state
