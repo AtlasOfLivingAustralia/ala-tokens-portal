@@ -34,6 +34,7 @@ template_vals = {
     "environment"                 : os.environ['ENVIRONMENT'],
     "hosted_zone"                 : os.environ['HOSTED_ZONE'],
     "hosted_zone_id"              : os.environ['HOSTED_ZONE_ID'],
+    "lambda_caller"               : os.environ['LAMBDA_CALLER'],
     "lambda_deploy_package"       : os.environ['LAMBDA_DEPLOY_PATH'] + os.environ['LAMBDA_DEPLOY_PACKAGE'],
     "product_component"           : os.environ['PRODUCT_COMPONENT'],
     "product_name"                : os.environ['PRODUCT_NAME'],

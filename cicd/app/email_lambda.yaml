@@ -24,9 +24,12 @@ Parameters:
       - testing
       - staging
       - production
+  pLambdaCaller:
+    Type: String
+    Description: The ARN of the resource that invokes the lambda
   pLambdaDeployPackage:
     Type: String
-    Description: The S3 key of the ambda code package
+    Description: The S3 key of the lambda code package
   pSourceEmail:
     Type: String
     Description: The source email address, must be a pre verified SES address
@@ -78,8 +81,7 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref TokenEmailLambda
       Principal: apigateway.amazonaws.com
-      SourceAccount: !Ref AWS::AccountId
-      SourceArn: arn:aws:execute-api:ap-southeast-2:748909248546:k9w4poaf2g/*/POST/register
+      SourceArn: !Ref pLambdaCaller
 
   TokenEmailLambda:
     Type: 'AWS::Lambda::Function'
