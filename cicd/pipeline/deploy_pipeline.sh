@@ -43,12 +43,12 @@ aws cloudformation deploy \
         pCloudFormationServiceRole=$CLOUDFORMATION_SERVICE_ROLE \
         pCodeBuildServiceRole=$CODEBUILD_SERVICE_ROLE \
         pCodePipelineServiceRole=$CODEPIPELINE_SERVICE_ROLE \
-        pCodestarConnection=$CODESTAR_CONNECTION
+        pCodestarConnection=$CODESTAR_CONNECTION \
         pCleanBranch=$clean_branch \
         pEnvironment=$environment \
         pGitHubBranch=$branch \
         pGitHubOwner=$GITHUB_OWNER \
         pGitHubRepositoryName=$GITHUB_REPO_NAME \
         pLambdaStackName=$LAMBDA_STACK_NAME \
-        pProductName=$PRODUCT_NAME \
+        pProductName=$PRODUCT_NAME
 

@@ -11,6 +11,7 @@ env:
   exported-variables:
     - CODEBUILD_BUILD_NUMBER
     - APP_STACK_FILE
+    - LAMBDA_STACK_FILE
     - SOURCE_BUCKET
     - BUCKET_PATH
     - MAX_AGE
@@ -75,7 +76,9 @@ phases:
 artifacts:
   files:
     - cicd/app/$APP_STACK_FILE
+    - cicd/app/$LAMBDA_STACK_FILE
     - cicd/app/docs_portal_pkce_template_config.json
+    - cicd/app/lambda_template_config.json
     - .env.production
   name: BuildTemplateConfigArtifact
   discard-paths: no
