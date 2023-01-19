@@ -52,17 +52,20 @@ phases:
       # docs portal pkce cloudformation template config
       - echo Generating the docs portal pkce stack template config
       - cicd/pipeline/gen_template_config.py  --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
+      # lambda cloudformation template config
+      - echo Generating the lambda stack template config
+      - cicd/pipeline/gen_template_config.py  --template cicd/pipeline/lambda_template_config.j2 > cicd/app/lambda_template_config.json
+       # lambda code packaging
+      - echo Creating the lambda code package
+      - cd src/lambda/ ; zip -r $LAMBDA_DEPLOY_PACKAGE . ; cd $CODEBUILD_SRC_DIR
+      - echo uploading to the $AWS_ARTIFACTS_BUCKET
+      - aws s3 cp src/lambda/$LAMBDA_DEPLOY_PACKAGE s3://$AWS_ARTIFACTS_BUCKET/$LAMBDA_DEPLOY_PATH --region $REGION --sse aws:kms
       # create the vite build config, .env.production is the default so we put everything in there
       - echo VITE_APP_VERSION=$VITE_APP_VERSION > .env.production
       - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production
       - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production
       - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production
       - echo VITE_TOKENS_API=$VITE_TOKENS_API >> .env.production
-       # lambda code packaging
-      - echo Creating the lambda code package
-      - cd src/lambda/ ; zip -r $LAMBDA_DEPLOY_PACKAGE . ; cd $CODEBUILD_SRC_DIR
-      - echo uploading to the $AWS_ARTIFACTS_BUCKET
-      - aws s3 cp src/lambda/$LAMBDA_DEPLOY_PACKAGE s3://$AWS_ARTIFACTS_BUCKET/$LAMBDA_DEPLOY_PATH --region $REGION --sse aws:kms
     finally:
       - #echo This always runs
       - #notify Slack on failure
