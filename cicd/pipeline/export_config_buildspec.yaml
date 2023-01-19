@@ -39,6 +39,8 @@ phases:
       - cicd/pipeline/gen_env_vars.py --env $ENVIRONMENT --clean-branch $CLEAN_BRANCH --conf config.ini > env.txt
       - echo loading config..
       - set -a ; source env.txt ; set +a
+      - export LAMBDA_DEPLOY_PACKAGE=token-email-lambda-$CLEAN_BRANCH-$CODEBUILD_BUILD_NUMBER.zip
+      - export LAMBDA_DEPLOY_PATH=pkce-token-$ENVIRONMENT/lambda/
     finally:
       - #echo This always runs
       - #notify Slack on failure
@@ -55,6 +57,11 @@ phases:
       - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production
       - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production
       - echo VITE_TOKENS_API=$VITE_TOKENS_API >> .env.production
+       # lambda code packaging
+      - echo Creating the lambda code package
+      - cd src/lambda/ ; zip -r $LAMBDA_DEPLOY_PACKAGE . ; cd $CODEBUILD_SRC_DIR
+      - echo uploading to the $AWS_ARTIFACTS_BUCKET
+      - aws s3 cp src/lambda/$LAMBDA_DEPLOY_PACKAGE s3://$AWS_ARTIFACTS_BUCKET/$LAMBDA_DEPLOY_PATH --region $REGION --sse aws:kms
     finally:
       - #echo This always runs
       - #notify Slack on failure

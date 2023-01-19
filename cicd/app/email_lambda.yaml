@@ -1,0 +1,119 @@
+Description: Lambda to send email notification of a token request
+
+Parameters:
+  pArtifactsBucket:
+    Type: String
+    Description: The bucket where the lambda code package is stored
+  pBuild:
+    Type: Number
+    Description: The build number
+    Default: '1'
+  pDestEmail:
+    Type: String
+    Description: The destination email address
+  pCleanBranch:
+    Type: String
+    Description: A cleaned version of the code branch name
+    Default: development
+  pEnvironment:
+    Type: String
+    Description: The AWS environment we're launching into
+    Default: development
+    AllowedValues:
+      - development
+      - testing
+      - staging
+      - production
+  pLambdaDeployPackage:
+    Type: String
+    Description: The S3 key of the ambda code package
+  pSourceEmail:
+    Type: String
+    Description: The source email address, must be a pre verified SES address
+
+Outputs:
+  TokenEmailLambdaArn:
+    Description: the ARN of the user migration lambda
+    Value: !GetAtt TokenEmailLambda.Arn
+
+Conditions:
+  IsDev: !Equals
+    - !Ref pEnvironment
+    - development
+
+Resources:
+
+  TokenEmailLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub
+          - "token-email-lambda-${ResourceName}"
+          - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource:
+                 - '*'
+          PolicyName: CognitoUserMigrationLambdaPolicy
+
+  LambdaResourcePolicy:
+    Type: AWS::Lambda::Permission
+    Properties: 
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TokenEmailLambda
+      Principal: apigateway.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: arn:aws:execute-api:ap-southeast-2:748909248546:k9w4poaf2g/*/POST/register
+
+  TokenEmailLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      FunctionName: !Sub
+          - "token-email-lambda-${ResourceName}"
+          - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
+      Code:
+        S3Bucket: !Ref pArtifactsBucket
+        S3Key: !Ref pLambdaDeployPackage
+      Description: Send an email to ALA support when someone requests an API token
+      Environment:
+        Variables:
+          DEST_EMAIL: !Ref pSourceEmail
+          SOURCE_EMAIL: !Ref pDestEmail
+      Handler: register_client.handler
+      MemorySize: 128
+      Role: !GetAtt TokenEmailLambdaExecutionRole.Arn
+      Runtime: nodejs18.x
+      Timeout: 3
+      Tags:
+        - Key: build
+          Value: !Ref pBuild
+
+  TokenEmailLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    Properties:
+      LogGroupName: !Sub
+                       - /aws/lambda/${FunctionName}
+                       - FunctionName: !Ref TokenEmailLambda
+      RetentionInDays: 30
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+        - Key: build
+          Value: !Ref pBuild
