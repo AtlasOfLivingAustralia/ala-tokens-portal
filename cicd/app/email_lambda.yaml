@@ -86,9 +86,11 @@ Resources:
   TokenEmailLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
+      Architectures:
+        - arm64
       FunctionName: !Sub
-          - "token-email-lambda-${ResourceName}"
-          - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
+        - "token-email-lambda-${ResourceName}"
+        - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
       Code:
         S3Bucket: !Ref pArtifactsBucket
         S3Key: !Ref pLambdaDeployPackage
