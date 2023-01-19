@@ -51,10 +51,10 @@ phases:
       - echo Entered the build phase...
       # docs portal pkce cloudformation template config
       - echo Generating the docs portal pkce stack template config
-      - cicd/pipeline/gen_template_config.py  --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
+      - cicd/pipeline/gen_template_config.py --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
       # lambda cloudformation template config
       - echo Generating the lambda stack template config
-      - cicd/pipeline/gen_template_config.py  --template cicd/pipeline/lambda_template_config.j2 > cicd/app/lambda_template_config.json
+      - cicd/pipeline/gen_template_config.py --template cicd/pipeline/lambda_template_config.j2 > cicd/app/lambda_template_config.json
        # lambda code packaging
       - echo Creating the lambda code package
       - cd src/lambda/ ; zip -r $LAMBDA_DEPLOY_PACKAGE . ; cd $CODEBUILD_SRC_DIR
