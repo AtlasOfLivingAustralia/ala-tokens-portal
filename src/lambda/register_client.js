@@ -30,7 +30,8 @@ Auto-generated via ALA Docs Portal
     `
     const emailParams = {
         Destination: {
-          ToAddresses: [DEST_EMAIL]
+          ToAddresses: [DEST_EMAIL],
+          CcAddresses: [event.resourceOwnerEmail]
         },
         Message: {
           Body: {
@@ -45,7 +46,7 @@ Auto-generated via ALA Docs Portal
   
     try {
       const command  = new SendEmailCommand(emailParams)
-      const result = await client.send(command)
+      await client.send(command)
       return {
         statusCode: 200,
         body: "Request submitted successfully!"
