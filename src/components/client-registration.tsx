@@ -10,8 +10,9 @@ Group,
 Tooltip,
 Collapse,
 ActionIcon,
+Notification
 } from '@mantine/core';
-import { IconToggleLeft, IconToggleRight } from '@tabler/icons';
+import { IconToggleLeft, IconToggleRight, IconCheck, IconX } from '@tabler/icons';
 import { useState } from 'react';
 import { AuthConfig } from '../helpers/config';
 
@@ -87,7 +88,7 @@ const useStyles = createStyles((theme) => ({
 
 
 
-const  ClientRegistration: React.FC<{config: AuthConfig}> = ({config}) => {
+const  ClientRegistration: React.FC<{config: AuthConfig, updateRegistrationSuccess: any}> = ({config, updateRegistrationSuccess}) => {
     const { classes } = useStyles();
     
     const [appName, setAppName] = useState("");
@@ -97,6 +98,8 @@ const  ClientRegistration: React.FC<{config: AuthConfig}> = ({config}) => {
     const [additionalInfo, setAdditionalInfo] = useState("");
     const [scopes, setScopes] = useState("openid email profile roles"); 
     const [showOptionalFields, setShowOptionalFields] = useState(false);
+    const [registerSuccess, setRegisterSuccess] = useState(false);
+    const [registerFailure, setRegisterFailure] = useState(false)
 
     const submitRequest =  () =>{
         const payload = {
@@ -115,19 +118,34 @@ const  ClientRegistration: React.FC<{config: AuthConfig}> = ({config}) => {
 
           const request = new Request(config.tokens_api + '/register', options);
           fetch(request, {mode: 'cors'}).then(response =>{
-            console.log(response);
+              if(response.ok){
+                setRegisterSuccess(true);
+                updateRegistrationSuccess(true);
+              } else{
+                setRegisterFailure(true);
+              }
           }).catch(e =>{
-              console.log(e)
+              console.log(e);
+              setRegisterFailure(true);
+          }).finally( ()=> {
+              // reset registration stats after a delay
+              setTimeout(() => {
+                setRegisterSuccess(false);
+                setRegisterFailure(false);
+                updateRegistrationSuccess(false);
+              }, 5000)
           });
     }
+
+
 
 
     return (
         <div className={classes.wrapper}>
         <SimpleGrid cols={2} spacing={10}    breakpoints={[
-        { maxWidth: 'sm', cols: 2, spacing: 'sm' },
-        { maxWidth: 'xs', cols: 1, spacing: 'sm' },
-      ]}>
+            { maxWidth: 'sm', cols: 2, spacing: 'sm' },
+            { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+        ]}>
             <div>
             <Title className={classes.title}>Client Application Registration</Title>
             <Text className={classes.description} mt="sm" mb={30}>
@@ -207,6 +225,10 @@ const  ClientRegistration: React.FC<{config: AuthConfig}> = ({config}) => {
                 </Group>
             </div>
         </SimpleGrid>
+        <br />
+        { registerFailure && <Notification disallowClose={true} icon={<IconX size={18} />} color="red" title="Error">
+               Error submitting Client Application Registration!. Please try again later.
+        </Notification> }
         </div>
     );
 }
