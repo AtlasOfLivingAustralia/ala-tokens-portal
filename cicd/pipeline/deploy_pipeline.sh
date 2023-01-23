@@ -38,16 +38,17 @@ aws cloudformation deploy \
     --region $REGION \
     --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
     --parameter-overrides \
-        pEnvironment=$environment \
-        pCloudFormationServiceRole=$CLOUDFORMATION_SERVICE_ROLE \
         pAppStackName=$APP_STACK_NAME \
+        pArtifactsBucket=$ARTIFACTS_BUCKET \
+        pCloudFormationServiceRole=$CLOUDFORMATION_SERVICE_ROLE \
         pCodeBuildServiceRole=$CODEBUILD_SERVICE_ROLE \
         pCodePipelineServiceRole=$CODEPIPELINE_SERVICE_ROLE \
-        pArtifactsBucket=$ARTIFACTS_BUCKET \
-        pProductName=$PRODUCT_NAME \
-        pGitHubRepositoryName=$GITHUB_REPO_NAME \
-        pGitHubOwner=$GITHUB_OWNER \
-        pGitHubBranch=$branch \
+        pCodestarConnection=$CODESTAR_CONNECTION \
         pCleanBranch=$clean_branch \
-        pCodestarConnection=$CODESTAR_CONNECTION
+        pEnvironment=$environment \
+        pGitHubBranch=$branch \
+        pGitHubOwner=$GITHUB_OWNER \
+        pGitHubRepositoryName=$GITHUB_REPO_NAME \
+        pLambdaStackName=$LAMBDA_STACK_NAME \
+        pProductName=$PRODUCT_NAME
 
