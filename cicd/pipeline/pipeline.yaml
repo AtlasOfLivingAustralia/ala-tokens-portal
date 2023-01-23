@@ -299,6 +299,17 @@ Resources:
               StackName: !Ref pAppStackName
               RoleArn: !Ref pCloudFormationServiceRole
             RunOrder: 3
+          - Name: TeardownLambdaStack
+            ActionTypeId:
+              Owner: AWS
+              Category: Deploy
+              Version: 1
+              Provider: CloudFormation
+            Configuration:
+              ActionMode: DELETE_ONLY
+              StackName: !Ref pLambdaStackName
+              RoleArn: !Ref pCloudFormationServiceRole
+            RunOrder: 3
           - Name: ApprovalForPipelineTeardown
             ActionTypeId:
               Owner: AWS
