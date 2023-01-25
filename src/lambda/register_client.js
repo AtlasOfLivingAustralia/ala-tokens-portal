@@ -14,19 +14,38 @@ exports.handler =  async (event, context) => {
     } 
     
    
-    const body = `Hi There,  
-    This is a user generated request from the ALA Docs Portal for Client Application Registration in the ALA Auth System. 
-    Please find the details below. 
-        1. Application Name / Access Reason: ${event.appName} 
-        2. Callback URL: ${event.callbackUrl} 
-        3. Resource Owner: ${event.resourceOwner} 
-        4. Scopes: ${event.scopes} 
-        5. Resource Owner Contact: ${event.resourceOwnerEmail} 
-        6. Additional Info: ${event.additionalInfo}
+    const body = `
+        <h4>ATTN: ALA Support </br>This is a user generated request from the Atlas of Living Australia's (ALA) Tokens Application</h4>
 
-Regards,
-Auto-generated via ALA Docs Portal 
-
+        <p>Please find the Client application registration details below: </p>
+        <ul style="list-style-type: decimal">
+        <li>
+        <strong> Application Name / Access Reason: </strong>     ${event.appName} 
+        </li>
+        <li>
+        <strong>Callback URL: </strong> ${event.callbackUrl} 
+        </li>
+        <li>
+        <strong>Resource Owner: </strong> ${event.resourceOwner} 
+        </li>
+        <li>
+        <strong> Scopes: </strong> ${event.scopes} 
+        </li>
+        <li>
+        <strong> Resource Owner Contact: </strong> ${event.resourceOwnerEmail}
+        </li>
+        <li>
+        <strong> Additional Info: </strong> ${event.additionalInfo}
+        </li>
+        </ul>
+        
+        <p>Regards,</br>
+        ALA Systems Team
+        </p>
+        
+        <p style="font-size: small">This email address <strong>(${event.resourceOwnerEmail}) </strong> included in the CC was provided to us via the ALA Tokens App at <a href="https://tokens.ala.org.au">tokens.ala.org.au</a>. If you <strong>did not</strong> submit a request in relation to API access, please email us at support@ala.org.au as soon as possible.
+        </p>
+    
     `
     const emailParams = {
         Destination: {
@@ -35,7 +54,7 @@ Auto-generated via ALA Docs Portal
         },
         Message: {
           Body: {
-            Text: { Data: body}
+            Html: { Data: body}
           },
     
           Subject: { Data: "Request for ALA Client Application Registration" },
