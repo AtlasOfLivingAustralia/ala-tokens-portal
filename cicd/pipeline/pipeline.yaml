@@ -2,42 +2,45 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Code pipeline for docsportal pkce
 
 Parameters:
-  pEnvironment:
+  pAppStackName:
     Type: String
-    Description: The AWS environment this belongs to
+    Description: The name of the application stack
+  pArtifactsBucket:
+    Type: String
+    Description: Common artifacts bucket used by CodePipeline and CodeBuild
+  pCleanBranch:
+    Type: String
+    Description: The clean branch, can be used in resource names
   pCloudFormationServiceRole:
     Type: String
     Description: Common service role used by Cloudformation
   pCodeBuildServiceRole:
     Type: String
     Description: Common service role used by CodeBuild
-  pAppStackName:
-    Type: String
-    Description: The name of the application stack
-  pProductName:
-    Type: String
-    Description: The name of the product
   pCodePipelineServiceRole:
     Type: String
     Description: Common service role used by CodePipeline
-  pArtifactsBucket:
+  pCodestarConnection:
     Type: String
-    Description: Common artifacts bucket used by CodePipeline and CodeBuild
+    Description: Codestar connection ARN
+  pEnvironment:
+    Type: String
+    Description: The AWS environment this belongs to
+  pGitHubBranch:
+    Type: String
+    Description: GitHub branch we're deploying from
   pGitHubRepositoryName:
     Type: String
     Description: GitHub repository name.
   pGitHubOwner:
     Type: String
     Description: GitHub owner
-  pGitHubBranch:
+  pLambdaStackName:
     Type: String
-    Description: GitHub branch we're deploying from
-  pCleanBranch:
+    Description: The name of the lambda stack
+  pProductName:
     Type: String
-    Description: The clean branch, can be used in resource names
-  pCodestarConnection:
-    Type: String
-    Description: Codestar connection ARN
+    Description: The name of the product
 
 Conditions:
   IsDev: !Equals
@@ -167,6 +170,24 @@ Resources:
             OutputArtifacts:
               - Name: ExportConfigArtifact
             RunOrder: 1
+          - Name: DeployLambdaCFStack
+            ActionTypeId:
+              Owner: AWS
+              Category: Deploy
+              Version: 1
+              Provider: CloudFormation
+            Configuration:
+              TemplatePath: 'ExportConfigArtifact::cicd/app/#{ExportConfigNS.LAMBDA_STACK_FILE}'
+              TemplateConfiguration: 'ExportConfigArtifact::cicd/app/lambda_template_config.json'
+              ActionMode: CREATE_UPDATE
+              Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND,CAPABILITY_NAMED_IAM
+              RoleArn: !Ref pCloudFormationServiceRole
+              StackName: !Ref pLambdaStackName
+            InputArtifacts:
+              - Name: 'ExportConfigArtifact'
+            Namespace: LambdaCloudFormationOutNS
+            OutputArtifacts: []
+            RunOrder: 2         
           - Name: DeployCfStack
             ActionTypeId:
               Owner: AWS
@@ -276,6 +297,17 @@ Resources:
             Configuration:
               ActionMode: DELETE_ONLY
               StackName: !Ref pAppStackName
+              RoleArn: !Ref pCloudFormationServiceRole
+            RunOrder: 3
+          - Name: TeardownLambdaStack
+            ActionTypeId:
+              Owner: AWS
+              Category: Deploy
+              Version: 1
+              Provider: CloudFormation
+            Configuration:
+              ActionMode: DELETE_ONLY
+              StackName: !Ref pLambdaStackName
               RoleArn: !Ref pCloudFormationServiceRole
             RunOrder: 3
           - Name: ApprovalForPipelineTeardown

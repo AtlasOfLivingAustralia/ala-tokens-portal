@@ -11,6 +11,7 @@ env:
   exported-variables:
     - CODEBUILD_BUILD_NUMBER
     - APP_STACK_FILE
+    - LAMBDA_STACK_FILE
     - SOURCE_BUCKET
     - BUCKET_PATH
     - MAX_AGE
@@ -39,6 +40,8 @@ phases:
       - cicd/pipeline/gen_env_vars.py --env $ENVIRONMENT --clean-branch $CLEAN_BRANCH --conf config.ini > env.txt
       - echo loading config..
       - set -a ; source env.txt ; set +a
+      - export LAMBDA_DEPLOY_PACKAGE=token-email-lambda-$CLEAN_BRANCH-$CODEBUILD_BUILD_NUMBER.zip
+      - export LAMBDA_DEPLOY_PATH=pkce-token-$ENVIRONMENT/lambda/
     finally:
       - #echo This always runs
       - #notify Slack on failure
@@ -48,7 +51,15 @@ phases:
       - echo Entered the build phase...
       # docs portal pkce cloudformation template config
       - echo Generating the docs portal pkce stack template config
-      - cicd/pipeline/gen_template_config.py  --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
+      - cicd/pipeline/gen_template_config.py --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
+      # lambda cloudformation template config
+      - echo Generating the lambda stack template config
+      - cicd/pipeline/gen_template_config.py --template cicd/pipeline/lambda_template_config.j2 > cicd/app/lambda_template_config.json
+       # lambda code packaging
+      - echo Creating the lambda code package
+      - cd src/lambda/ ; zip -r $LAMBDA_DEPLOY_PACKAGE . ; cd $CODEBUILD_SRC_DIR
+      - echo uploading to the $AWS_ARTIFACTS_BUCKET
+      - aws s3 cp src/lambda/$LAMBDA_DEPLOY_PACKAGE s3://$AWS_ARTIFACTS_BUCKET/$LAMBDA_DEPLOY_PATH --region $REGION --sse aws:kms
       # create the vite build config, .env.production is the default so we put everything in there
       - echo VITE_APP_VERSION=$VITE_APP_VERSION > .env.production
       - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production
@@ -68,7 +79,9 @@ phases:
 artifacts:
   files:
     - cicd/app/$APP_STACK_FILE
+    - cicd/app/$LAMBDA_STACK_FILE
     - cicd/app/docs_portal_pkce_template_config.json
+    - cicd/app/lambda_template_config.json
     - .env.production
   name: BuildTemplateConfigArtifact
   discard-paths: no

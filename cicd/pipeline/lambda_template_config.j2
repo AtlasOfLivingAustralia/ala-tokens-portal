@@ -1,0 +1,30 @@
+{
+  "Parameters" : {
+    "pArtifactsBucket"     : "{{ artifacts_bucket }}",
+    "pBuild"               : "{{ build }}",
+    "pDestEmail"           : "{{ dest_email }}",
+    "pCleanBranch"         : "{{ clean_branch }}",
+    "pEnvironment"         : "{{ environment }}",
+    "pLambdaCaller"        : "{{ lambda_caller }}",
+    "pLambdaDeployPackage" : "{{ lambda_deploy_package }}",
+    "pSourceEmail"         : "{{ source_email }}"
+  },
+  "Tags" : {
+    "product"     : "{{ product_name }}",
+    "component"   : "{{ product_component }}",
+    "environment" : "{{ environment }}",
+    "branch"      : "{{ branch }}",
+    "version"     : "{{ commit_id }}",
+    "build"       : "{{ build }}"
+  },
+  "StackPolicy" : {
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "Update:*",
+        "Principal": "*",
+        "Resource" : "*"
+      }
+    ]
+  }
+}
