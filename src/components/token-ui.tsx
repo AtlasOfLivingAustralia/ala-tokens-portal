@@ -13,30 +13,40 @@ import {
   Header,
   Text,
   Alert,
+  Notification,
 } from '@mantine/core';
 
 
-import Auth, { AuthProps } from './token-generation';
+import Auth from './token-generation';
 
 import ClientRegistration from './client-registration';
-import { IconInfoCircle } from '@tabler/icons';
+import { IconCheck, IconInfoCircle } from '@tabler/icons';
+import { AuthConfig } from '../helpers/config';
 
 
-const  UI: React.FC<{config: AuthProps}> = ({config}) => {
+const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
-  const [scope, setScope] = useState("openid email profile");
+  const [scope, setScope] = useState("openid email profile roles");
   const [active, setActive] = useState(0);
   const [clientFormVisible, setClientFormVisible] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
-  // return a AuthProps object and required configs with latest client details to be passed to the Auth component for token generation.
-  const clientDetails  = (): AuthProps => {
+  // return a AuthConfig object and required configs with latest client details to be passed to the Auth component for token generation.
+  const clientDetails  = (): AuthConfig => {
       return {client_id:clientId, client_secret: clientSecret, scope, authority: config.authority, redirect_uri: config.redirect_uri, popup_post_logout_redirect_uri: config.popup_post_logout_redirect_uri}
   }
 
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
+
+  // set registration success state and set  clientFormVisible to false to prevent it from appearing again it after reset
+  const updateRegistrationSuccess = (status: boolean) => {
+    setRegistrationSuccess(status);
+    setClientFormVisible(false);
+
+  }
 
 
   // If we're waiting for an auth state update
@@ -61,14 +71,14 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
                 <Stepper.Step label="Client Registration" description="Register Client Application">
                     <br />
                     <Alert icon={<IconInfoCircle size={16} />} color="blue"> Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</Alert>
-                    <p>If you do not yet have Client Details,  click 'Register'and follow the registration process.</p>
+                    <p>If you do not yet have Client Details,  click 'Register' and follow the registration process.</p>
 
                 </Stepper.Step>
                 <br />
                 <Stepper.Step label="Enter Client Details" description="Enter Client details e.g. Client ID and Secret of the registered application">
                   <TextInput
                       label="Client ID"
-                      placeholder="exmaple-client-id"
+                      placeholder="example-client-id"
                       description="Client ID of a registered application"
                       id='client-id'
                       value={clientId} onInput={(event) => setClientId(event.currentTarget.value)} 
@@ -78,7 +88,7 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
                   <TextInput
                       label="Scopes"
                       placeholder="openid email ala"
-                      description="Scopes (resource permission) to assign for the access token"
+                      description="Scopes (resource permissions) to assign for the access token"
                       value={scope} onInput={(event) => setScope(event.currentTarget.value)}  
                   />
                   <br />
@@ -86,7 +96,7 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
                       label="Client Secret (Optional)"
                       placeholder="Client secret"
                       type='password'
-                      description="Client secret of a registered application. Only required for clients registered as private client applications(eg. server side web application)."
+                      description="Client secret of a registered application. Only required for clients registered as private client applications( eg. server side web application)."
                       value={clientSecret} onInput={(event) => setClientSecret(event.currentTarget.value)} 
                   />
                 </Stepper.Step>
@@ -102,9 +112,13 @@ const  UI: React.FC<{config: AuthProps}> = ({config}) => {
             </Group>
             <br/>
 
-            <Transition mounted={clientFormVisible} transition="scale-y" duration={500} timingFunction="ease">
-                {(styles) => <div style={styles}><ClientRegistration/></div>}
+            <Transition mounted={clientFormVisible && !registrationSuccess} transition="scale-y" duration={100} timingFunction="ease">
+                {(styles) => <div style={styles}><ClientRegistration config={config} updateRegistrationSuccess={updateRegistrationSuccess}/></div>}
               </Transition>
+
+              { registrationSuccess  && <Notification disallowClose={true} icon={<IconCheck size={18} />} color="teal" title="Registration submitted successfully">
+               ALA support will be in contact with you shortly.
+        </Notification> }
 
           </Box>
         </Card>

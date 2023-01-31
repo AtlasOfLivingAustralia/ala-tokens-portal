@@ -10,9 +10,12 @@ Group,
 Tooltip,
 Collapse,
 ActionIcon,
+Notification
 } from '@mantine/core';
-import { IconToggleLeft, IconToggleRight } from '@tabler/icons';
-import { ReactElement, useState } from 'react';
+import { IconToggleLeft, IconToggleRight, IconCheck, IconX } from '@tabler/icons';
+import { useState } from 'react';
+import { AuthConfig } from '../helpers/config';
+
 
 const useStyles = createStyles((theme) => ({
     wrapper: {
@@ -85,7 +88,7 @@ const useStyles = createStyles((theme) => ({
 
 
 
-function ClientRegistration(): ReactElement {
+const  ClientRegistration: React.FC<{config: AuthConfig, updateRegistrationSuccess: any}> = ({config, updateRegistrationSuccess}) => {
     const { classes } = useStyles();
     
     const [appName, setAppName] = useState("");
@@ -93,45 +96,60 @@ function ClientRegistration(): ReactElement {
     const [resourceOwner, setResourceOwner] = useState("");
     const [resourceOwnerEmail, setResourceOwnerEmail] = useState("");
     const [additionalInfo, setAdditionalInfo] = useState("");
-    const [scopes, setScopes] = useState("openid email profile"); 
+    const [scopes, setScopes] = useState("openid email profile roles"); 
+    const [showOptionalFields, setShowOptionalFields] = useState(false);
+    const [registerSuccess, setRegisterSuccess] = useState(false);
+    const [registerFailure, setRegisterFailure] = useState(false)
 
-    const [showOptionalFields, setShowOptionalFields] = useState(false)
-;
+    const submitRequest =  () =>{
+        const payload = {
+            "appName": appName,
+            "callbackUrl": callbackUrl ? callbackUrl + ', https://tokens.ala.org.au': 'https://tokens.ala.org.au',
+            "resourceOwner": resourceOwner,
+            "scopes": scopes ? scopes: 'openid email profile roles',
+            "resourceOwnerEmail": resourceOwnerEmail,
+            "additionalInfo": additionalInfo
+        }
 
-    const MailTo = () =>{
-        const email="mailto:support@ala.org.au"
-        const body = `Hello There, %0d%0a %0d%0a This is a user generated request from the ALA Docs Portal for Client Application Registration  in the ALA Auth System. Please find the details below. %0d%0a
-            1. Application Name / Access Reason: ${appName} %0d%0a
-            2. Callback URL: ${callbackUrl ? callbackUrl + ', https://tokens.ala.org.au': 'https://tokens.ala.org.au'} %0d%0a
-            3. Resource Owner: ${resourceOwner} %0d%0a
-            4. Scopes: ${scopes ? scopes: 'openid email profile'} %0d%0a
-            5. Resource Owner Contact: ${resourceOwnerEmail} %0d%0a
-            6. Additional Info: ${additionalInfo} %0d%0a
-        ` + "%0d%0aRegards, %0d%0a Auto-generated via ALA Docs Portal "
-        const mailto = `${email}?subject=Request for ALA Client Application Registration&cc=${resourceOwnerEmail}&body=${body}`
-        return (
-            <a
-                onClick={(e) => {
-                    window.location.href = mailto;
-                    e.preventDefault();
-                }}
-            >
-                Sumbit
-            </a>
-        );
+          const options = {
+            method: "POST",
+            body: JSON.stringify(payload)
+          };
+
+          const request = new Request(config.tokens_api + '/register', options);
+          fetch(request, {mode: 'cors'}).then(response =>{
+              if(response.ok){
+                setRegisterSuccess(true);
+                updateRegistrationSuccess(true);
+              } else{
+                setRegisterFailure(true);
+              }
+          }).catch(e =>{
+              console.log(e);
+              setRegisterFailure(true);
+          }).finally( ()=> {
+              // reset registration stats after a delay
+              setTimeout(() => {
+                setRegisterSuccess(false);
+                setRegisterFailure(false);
+                updateRegistrationSuccess(false);
+              }, 5000)
+          });
     }
+
+
 
 
     return (
         <div className={classes.wrapper}>
         <SimpleGrid cols={2} spacing={10}    breakpoints={[
-        { maxWidth: 'sm', cols: 2, spacing: 'sm' },
-        { maxWidth: 'xs', cols: 1, spacing: 'sm' },
-      ]}>
+            { maxWidth: 'sm', cols: 2, spacing: 'sm' },
+            { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+        ]}>
             <div>
             <Title className={classes.title}>Client Application Registration</Title>
             <Text className={classes.description} mt="sm" mb={30}>
-                Please provide details in the adjacent form for Client Registration. Once registered, you will be provided with Client ID and Secret required for token generation and refresh. 
+                Please provide details in the adjacent form for Client Registration. Once registered, our team will provide you with Client ID and Secret required for token generation and refresh. 
             </Text>
 
             </div>
@@ -181,10 +199,10 @@ function ClientRegistration(): ReactElement {
                             value={scopes}
                             onChange={(event) => setScopes(event.target.value)}
                         />
-                        <Tooltip   position="bottom" className={classes.toolTip} label="The callback/redirect for your application ALA should redirect to after authentication. This is only required if you are planning to generate JWTs on your own front-end application(s) via PKCE or Implict OAuth flows.">
+                        <Tooltip   position="bottom" className={classes.toolTip} label="The callback/redirect for your application ALA should redirect to after authentication. This is only required if you are planning to generate JWTs on your own front-end application(s) via PKCE or Implicit OAuth flows.">
                             <TextInput
                                 label="Callback URL (Optional)"
-                                placeholder="e.g. https://myapp.exmaple.com"
+                                placeholder="e.g. https://myapp.example.com"
                                 classNames={{ input: classes.input, label: classes.inputLabel }}
                                 value={callbackUrl}
                                 onChange={(event) => setCallbackUrl(event.target.value)}
@@ -203,10 +221,14 @@ function ClientRegistration(): ReactElement {
                 </Collapse>
 
                 <Group position="right" mt="md">
-                    <Button type="submit" disabled={!appName || !resourceOwner || !resourceOwnerEmail} className={classes.control}> <MailTo></MailTo></Button>
+                    <Button  disabled={!appName || !resourceOwner || !resourceOwnerEmail} className={classes.control} onClick={() => submitRequest()}> Submit </Button>
                 </Group>
             </div>
         </SimpleGrid>
+        <br />
+        { registerFailure && <Notification disallowClose={true} icon={<IconX size={18} />} color="red" title="Error">
+               Error submitting Client Application Registration!. Please try again later.
+        </Notification> }
         </div>
     );
 }

@@ -113,7 +113,7 @@ const  AppNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
       onClick={(event) => {
         event.preventDefault();
         if(item.label === "Docs Portal"){
-          window.open(item.link);
+          window.open(item.link, "_self");
         } else{
           setNavbarActive(item.label);
           updateNavContent(item.label)

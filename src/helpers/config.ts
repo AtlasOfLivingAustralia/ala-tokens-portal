@@ -5,6 +5,7 @@ export interface AuthConfig {
   authority: string;
   redirect_uri: string;
   popup_post_logout_redirect_uri?: string; 
+  tokens_api?: string;
 }
 
 const config: AuthConfig = {
@@ -14,6 +15,7 @@ const config: AuthConfig = {
   authority: import.meta.env.VITE_OIDC_AUTHORITY,
   redirect_uri: import.meta.env.VITE_OIDC_REDIRECT_URI,
   popup_post_logout_redirect_uri: import.meta.env.VITE_OIDC_LOGOUT_REDIRECT_URI,
+  tokens_api:  import.meta.env.VITE_TOKENS_API,
 };
 
 export default config;
