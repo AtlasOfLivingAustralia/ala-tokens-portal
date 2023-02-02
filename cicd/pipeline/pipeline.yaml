@@ -53,7 +53,7 @@ Resources:
     Type: AWS::CodeBuild::Project
     Properties:
       Name: !Sub
-              - "${pProductName}-export-congig-${ResourceName}"
+              - "${pProductName}-export-config-${ResourceName}"
               - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
       Description: Load the environment and build the CloudFormation template config file
       ServiceRole: !Ref pCodeBuildServiceRole
