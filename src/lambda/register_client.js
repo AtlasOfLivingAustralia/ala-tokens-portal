@@ -56,7 +56,7 @@ exports.handler =  async (event, context) => {
         <br>
         <p>Regards,</p>
         <p>ALA Systems Team</p>
-        <p><a>href="https://ala.org.au">ala.org.au</a></p>
+        <p><a href="https://ala.org.au">ala.org.au</a></p>
         
         <p style="font-size: small">This email address <strong>(${event.resourceOwnerEmail}) </strong> was provided to us via the ALA Tokens App at <a href="https://tokens.ala.org.au">tokens.ala.org.au</a>. If you <strong>did not</strong> submit a request in relation to API access, please email us at support@ala.org.au as soon as possible.
         </p>
