@@ -2,14 +2,25 @@ import { Navbar, createStyles } from '@mantine/core';
 import { IconExternalLink, IconKey,  IconQuestionMark } from '@tabler/icons';
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
   interface NavProps {
     opened: Boolean;
-    updateNavContent: any;
 }
 
-const  AppNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
+const  AppNavbar: React.FC<NavProps> = (opened) => {
+
+  const navigate = useNavigate();
+
+  const handleNavRoute = (navOption: string) => {
+    if(navOption === "Credentials & Tokens"){
+        navigate("/")
+    }
+    if(navOption === "FAQ"){
+      navigate("/faq")
+    }
+  }
 
   const useStyles = createStyles((theme, _params, getRef) => {
     const icon = getRef('icon');
@@ -116,7 +127,7 @@ const  AppNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
           window.open(item.link, "_self");
         } else{
           setNavbarActive(item.label);
-          updateNavContent(item.label)
+          handleNavRoute(item.label)
         }
 
       }}

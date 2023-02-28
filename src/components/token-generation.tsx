@@ -7,6 +7,8 @@ import {
   Loader,
   Group,
   Alert,
+  Header,
+  Title,
   
 } from '@mantine/core';
 
@@ -14,9 +16,9 @@ import {
 import { Prism } from '@mantine/prism';
 import { IconAlertCircle, IconDownload} from '@tabler/icons';
 import { User, UserManager } from 'oidc-client-ts';
-import { AuthConfig } from '../helpers/config';
+import config, { AuthConfig } from '../helpers/config';
 
-const Auth: React.FC<{clientDetails : AuthConfig}> = ({clientDetails}) => {
+const Auth: React.FC<{clientDetails : AuthConfig, type: string}> = ({clientDetails, type}) => {
   // set and empty user state on initial setup.
   const [user, setUser] = useState(new User({access_token:"", token_type:"", profile: {sub:"", aud:"", exp:0, iat: 0, iss:""}}));
   // loading state
@@ -92,20 +94,44 @@ const Auth: React.FC<{clientDetails : AuthConfig}> = ({clientDetails}) => {
     <Container fluid size="xs" px="xs">
       <Center>
       <Box px={1} style={{ display: 'flex', flexDirection: 'column'}}>
-            {user.access_token && (
+            {(user.access_token)  && (
                 <div >
-                  <Group position="center">
-                    <div style={{textAlign: 'center', width: 550}}>
-                      <Alert icon={<IconAlertCircle size={16} />} title="" color="green">
-                        The JWT i.e. <strong>access_token</strong>  below can now be used for protected API requests. For more details on advanced server-side usage of this token please download the token and see usage examples <a target="_blank" href="https://github.com/AtlasOfLivingAustralia/jwt-usage-examples">here</a>.
-                      </Alert> 
+                  {(type === 'advanced' ) &&   
+                    (
+                    <div>
+                      <Group position="center">
+                        <div style={{textAlign: 'center', width: 550}}>
+                          <Alert icon={<IconAlertCircle size={16} />} title="" color="green">
+                            The JWT i.e. <strong>access_token</strong>  below can now be used for protected API requests. For more details on advanced server-side usage of this token please download the token and see usage examples <a target="_blank" href="https://github.com/AtlasOfLivingAustralia/jwt-usage-examples">here</a>.
+                          </Alert> 
+                          </div>
+                      </Group>
+                      <br />
+                      <Prism language="json" style={{width: 550}} mt={12}  >
+                          {JSON.stringify(user, null, 2)}
+                      </Prism> 
+                    </div>
+
+                    )
+                  }
+
+                {(type === 'basic') &&   
+
+                    (
+                      <div>
+                        <Title align="center" order={4} mt={6}>
+                            Access Token 
+                        </Title>
+                        <Prism language="bash" style={{width: 650}} mt={12}  >
+                            {user.access_token}
+                        </Prism> 
+                        <p style={{textAlign:'center'}}>Generated using the following Client Application ID : <strong>{config.client_id}</strong></p>
                       </div>
-                  </Group>
-                  <br />
-                  
-                  <Prism language="json" style={{width: 550}} mt={12}  >
-                      {JSON.stringify(user, null, 2)}
-                  </Prism>
+                    )
+
+                
+                  }
+          
 
                   <Group position="center">
                       <Button

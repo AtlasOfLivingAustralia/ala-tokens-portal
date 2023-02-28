@@ -24,7 +24,7 @@ import { IconCheck, IconInfoCircle } from '@tabler/icons';
 import { AuthConfig } from '../helpers/config';
 
 
-const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
+const AdvancedFlow: React.FC<{config: AuthConfig}> = ({config}) => {
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
@@ -102,7 +102,7 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
                 </Stepper.Step>
 
                 <Stepper.Step label="Token Generation" description="Generate a JWT token">
-                    <Auth clientDetails={clientDetails()}/>
+                    <Auth clientDetails={clientDetails()} type="advanced"></Auth>
                 </Stepper.Step>
             </Stepper>
     
@@ -128,4 +128,4 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
 
 }
 
-export default UI;
+export default AdvancedFlow;
