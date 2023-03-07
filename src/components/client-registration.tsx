@@ -149,7 +149,7 @@ const  ClientRegistration: React.FC<{config: AuthConfig, updateRegistrationSucce
             <div>
             <Title className={classes.title}>Client Application Registration</Title>
             <Text className={classes.description} mt="sm" mb={30}>
-                Please provide details in the adjacent form for Client Registration. Once registered, our team will provide you with Client ID and Secret required for token generation and refresh. 
+                Please provide details in the adjacent form for Client Registration. Once registered, you will be able to use you Client Application Details with your own app(s)/use cases to integrate with  ALA OIDC services
             </Text>
 
             </div>

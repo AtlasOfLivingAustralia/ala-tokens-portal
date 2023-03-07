@@ -2,18 +2,12 @@ import { useState } from 'react';
 import {
   Container,
   Center,
-  Box,
   Button,
-  Loader,
   Group,
-  Alert,
   Card,
-  Image,
   Text,
   Badge,
-  Header,
-  Title,
-  Divider,
+  Title
   
 } from '@mantine/core';
 

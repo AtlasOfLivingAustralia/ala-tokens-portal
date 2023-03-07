@@ -14,6 +14,7 @@ import {
   Text,
   Alert,
   Notification,
+  Select,
 } from '@mantine/core';
 
 
@@ -43,8 +44,6 @@ const BasicFlow: React.FC<{config: AuthConfig}> = ({config}) => {
     <Container fluid style={{ width: '60%', minWidth:'600px', maxHeight:'100%'}}>
       <Center>
         <Card shadow="lg" radius="xl" style={{ width: "100%", minHeight: 300 }}>
-
-
           <Box px={16} style={{ display: 'flex', flexDirection: 'column' }}>
             <Card.Section
               style={{ display: 'flex', justifyContent: 'center' }}
@@ -55,7 +54,14 @@ const BasicFlow: React.FC<{config: AuthConfig}> = ({config}) => {
                 Basic Usage - JWT Generation for API Usage
             </Title>
             <br />
-
+                <Select
+          label="Select from Client IDs"
+          placeholder="Select from one of your OAuth Client Ids against which to generate a access token"
+          data={[
+              { value: 'react', label: 'Automatically register a new Client' },
+              { value: 'ng', label: config.client_id },
+              ]}
+            />
             <Auth clientDetails={clientDetails()} type="basic"/>
             <br/>
 

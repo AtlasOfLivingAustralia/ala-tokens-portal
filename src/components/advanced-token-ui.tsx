@@ -30,7 +30,7 @@ const AdvancedFlow: React.FC<{config: AuthConfig}> = ({config}) => {
   const [clientSecret, setClientSecret] = useState("");
   const [scope, setScope] = useState("openid email profile roles");
   const [active, setActive] = useState(0);
-  const [clientFormVisible, setClientFormVisible] = useState(false);
+  const [clientFormVisible, setClientFormVisible] = useState(true);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   // return a AuthConfig object and required configs with latest client details to be passed to the Auth component for token generation.
@@ -63,11 +63,11 @@ const AdvancedFlow: React.FC<{config: AuthConfig}> = ({config}) => {
             >
             </Card.Section>
             <Title align="center" order={3} mt={6}>
-                Step by step guide for Client Registration and Token Generation 
+                Client Application Registration 
             </Title>
             <br />
 
-            <Stepper active={active} onStepClick={setActive} breakpoint="sm">
+            {/* <Stepper active={active} onStepClick={setActive} breakpoint="sm">
                 <Stepper.Step label="Client Registration" description="Register Client Application">
                     <br />
                     <Alert icon={<IconInfoCircle size={16} />} color="blue"> Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</Alert>
@@ -105,11 +105,11 @@ const AdvancedFlow: React.FC<{config: AuthConfig}> = ({config}) => {
                     <Auth clientDetails={clientDetails()} type="advanced"></Auth>
                 </Stepper.Step>
             </Stepper>
-    
-            <Group position="center" mt="xl">
+     */}
+            {/* <Group position="center" mt="xl">
                  <Button   variant="default"  disabled={(clientFormVisible && active == 0)} onClick={ active  > 0 ? prevStep : function(){setClientFormVisible(!clientFormVisible)}}> {active === 0 ? 'Register' :'Back' }</Button>
                 {<Button  disabled={(active === 1  && clientId.length < 1) || active === 2} onClick={function(){nextStep();  setClientFormVisible(false)}}> {active < 1 ? 'Enter Client Details' :'Next' } </Button>}
-            </Group>
+            </Group> */}
             <br/>
 
             <Transition mounted={clientFormVisible && !registrationSuccess} transition="scale-y" duration={100} timingFunction="ease">
