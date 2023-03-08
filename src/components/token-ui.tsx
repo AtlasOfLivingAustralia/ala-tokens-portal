@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   Container,
@@ -22,20 +22,44 @@ import Auth from './token-generation';
 import ClientRegistration from './client-registration';
 import { IconCheck, IconInfoCircle } from '@tabler/icons';
 import { AuthConfig } from '../helpers/config';
+import { useSearchParams } from 'react-router-dom';
 
 
 const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
-  const [scope, setScope] = useState("openid email profile roles");
+  const [scope, setScope] = useState("openid email profile ala/roles");
   const [active, setActive] = useState(0);
   const [clientFormVisible, setClientFormVisible] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Similar to componentDidMount and componentDidUpdate:
+  useEffect(() => {
+    // check url param for app `step` and set the visibility of app client registration accordingly.
+    const step = searchParams.get('step');
+    if(step && step === 'registration' && active === 0){
+      setClientFormVisible(true);
+      // remove url params after registration visibility state is updated. 
+      setSearchParams('');
+    }
+
+    if(step && step === 'generation'){
+      const clientId = searchParams.get('client_id');
+      setActive(1);
+      if(clientId){
+        setClientId(clientId)
+      }
+      // remove url params after registration visibility state is updated. 
+      setSearchParams('');
+    }
+
+  });
 
   // return a AuthConfig object and required configs with latest client details to be passed to the Auth component for token generation.
   const clientDetails  = (): AuthConfig => {
-      return {client_id:clientId, client_secret: clientSecret, scope, authority: config.authority, redirect_uri: config.redirect_uri, popup_post_logout_redirect_uri: config.popup_post_logout_redirect_uri}
+      return {client_id:clientId, client_secret: clientSecret, scope, authority: config.authority, redirect_uri: config.redirect_uri, cognito_logout_uri: config.cognito_logout_uri, popup_post_logout_redirect_uri: config.popup_post_logout_redirect_uri}
   }
 
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));

@@ -50,8 +50,22 @@ const Auth: React.FC<{clientDetails : AuthConfig}> = ({clientDetails}) => {
   }
 
   const signOut = async () =>{
-    // successful signoutPopup will  log out current user.
-    await userManager.signoutPopup();
+    // unlike cas, cognito oidc configuration object does not have a end_session_endpoint. This is required for  signoutPopup(). For cognito use cases, a cognito logout url will be called
+    if(clientDetails.cognito_logout_uri){
+          let win = window.open(clientDetails.cognito_logout_uri +'?client_id='+clientDetails.client_id, '', "width=10,height=10")
+          if(win){
+            setInterval(() => { 
+              if(win && !win?.closed) {
+                  win?.close();
+              }
+             }, 1000);
+          }
+
+    } else{
+      // successful signoutPopup will  log out current user.
+      await userManager.signoutPopup();
+    }
+
     // reset user info from current component state
     resetUser(); 
   }

@@ -63,6 +63,7 @@ phases:
       # create the vite build config, .env.production is the default so we put everything in there
       - echo VITE_APP_VERSION=$VITE_APP_VERSION > .env.production
       - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production
+      - echo VITE_COGNITO_LOGOUT_URI=$VITE_COGNITO_LOGOUT_URI >> .env.production
       - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production
       - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production
       - echo VITE_TOKENS_API=$VITE_TOKENS_API >> .env.production
