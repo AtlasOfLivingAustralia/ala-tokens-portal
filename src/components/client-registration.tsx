@@ -182,6 +182,16 @@ const  ClientRegistration: React.FC<{config: AuthConfig, updateRegistrationSucce
                     value={appName}
                     onChange={(event) => setAppName(event.target.value)}
                 />
+                <Textarea
+                    label="Additional Details"
+                    placeholder="Further details relating to your use case e.g. BioCollect protected API access, Single Page App (SPA) Authentication with ALA, Accessing collections metadata etc."
+                    minRows={4}
+                    mt="md"
+                    required
+                    value={additionalInfo}
+                    onChange={(event) => setAdditionalInfo(event.target.value)}
+                    classNames={{ input: classes.input, label: classes.inputLabel }}
+                />                
                 <br />
 
                 <span style={{fontSize:'12px'}} >Toggle optional fields</span>
@@ -193,35 +203,25 @@ const  ClientRegistration: React.FC<{config: AuthConfig, updateRegistrationSucce
 
                 <Collapse in={showOptionalFields}>
                         <TextInput
-                            label="Scopes / Resource Permissions (Optional)"
-                            placeholder="e.g. openid email ala "
+                            label="Scopes / Resource Permissions"
+                            placeholder="Default scopes will be provided if left empty e.g. openid email"
                             classNames={{ input: classes.input, label: classes.inputLabel }}
                             value={scopes}
                             onChange={(event) => setScopes(event.target.value)}
                         />
                         <Tooltip   position="bottom" className={classes.toolTip} label="The callback/redirect for your application ALA should redirect to after authentication. This is only required if you are planning to generate JWTs on your own front-end application(s) via PKCE or Implicit OAuth flows.">
                             <TextInput
-                                label="Callback URL (Optional)"
+                                label="Callback URL"
                                 placeholder="e.g. https://myapp.example.com"
                                 classNames={{ input: classes.input, label: classes.inputLabel }}
                                 value={callbackUrl}
                                 onChange={(event) => setCallbackUrl(event.target.value)}
                             />
                         </Tooltip>
-
-                        <Textarea
-                            label="Additional Details (Optional)"
-                            placeholder="Please include any further details relating to this request."
-                            minRows={4}
-                            mt="md"
-                            value={additionalInfo}
-                            onChange={(event) => setAdditionalInfo(event.target.value)}
-                            classNames={{ input: classes.input, label: classes.inputLabel }}
-                        />
                 </Collapse>
 
                 <Group position="right" mt="md">
-                    <Button  disabled={!appName || !resourceOwner || !resourceOwnerEmail} className={classes.control} onClick={() => submitRequest()}> Submit </Button>
+                    <Button  disabled={!appName || !resourceOwner || !resourceOwnerEmail || (!additionalInfo || additionalInfo.trim().length < 5) } className={classes.control} onClick={() => submitRequest()}> Submit </Button>
                 </Group>
             </div>
         </SimpleGrid>
