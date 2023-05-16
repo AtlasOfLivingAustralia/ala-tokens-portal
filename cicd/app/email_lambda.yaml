@@ -97,8 +97,8 @@ Resources:
       Description: Send an email to ALA support when someone requests an API token
       Environment:
         Variables:
-          DEST_EMAIL: !Ref pSourceEmail
-          SOURCE_EMAIL: !Ref pDestEmail
+          DEST_EMAIL: !Ref pDestEmail
+          SOURCE_EMAIL: !Ref pSourceEmail
       Handler: register_client.handler
       MemorySize: 128
       Role: !GetAtt TokenEmailLambdaExecutionRole.Arn
