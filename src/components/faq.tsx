@@ -38,7 +38,7 @@ function Faq(): React.ReactElement {
             </Accordion.Item>
 
             <Accordion.Item label="I need help with something else..">
-              Please reach out to us at suport@ala.org.au with any other questions.  
+              Please reach out to us at support@ala.org.au with any other questions.
             </Accordion.Item>
           </Accordion>
 
