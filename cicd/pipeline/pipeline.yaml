@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Code pipeline for docsportal pkce
+Description: Code pipeline for the api tokens portal
 
 Parameters:
   pAppStackName:
@@ -79,7 +79,7 @@ Resources:
       Name: !Sub
               - "${pProductName}-build-site-${ResourceName}"
               - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
-      Description: Build the docsportal pkce site
+      Description: Build the api tokens portal site
       ServiceRole: !Ref pCodeBuildServiceRole
       Artifacts:
         Type: CODEPIPELINE
@@ -196,7 +196,7 @@ Resources:
               Provider: CloudFormation
             Configuration:
               TemplatePath: 'ExportConfigArtifact::cicd/app/#{ExportConfigNS.APP_STACK_FILE}'
-              TemplateConfiguration: 'ExportConfigArtifact::cicd/app/docs_portal_pkce_template_config.json'
+              TemplateConfiguration: 'ExportConfigArtifact::cicd/app/api_tokens_portal_template_config.json'
               ActionMode: CREATE_UPDATE
               Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
               RoleArn: !Ref pCloudFormationServiceRole
