@@ -26,14 +26,14 @@ build_image() {
   # get NODE_VERSION from the config
   eval $(cicd/pipeline/gen_env_vars.py --env local --conf config.ini --clean-branch local)
 
-	docker build --tag pkce-build-container --build-arg NODE_VERSION=$NODE_VERSION .	
+	docker build --tag tokens-build-container --build-arg NODE_VERSION=$NODE_VERSION .	
 }
 
 ###
 # build the node app inside the docker container
 build_app() {
   # first check if the image exists
-  image_id=$(docker image ls -qf "reference=pkce-build-container")
+  image_id=$(docker image ls -qf "reference=tokens-build-container")
 
   if [ -z $image_id ] ; then 
      echo "The container image needs to be built. use $0 image"
@@ -45,7 +45,7 @@ build_app() {
   rm -rf dist
 	docker run --rm -v "$(PWD)":"/build" \
                         -w /build \
-                         pkce-build-container:latest \
+                         tokens-build-container:latest \
                          npm install; npm run build
 
 }
@@ -66,6 +66,7 @@ VITE_APP_VERSION=$VITE_APP_VERSION
 
 # ALA OIDC
 VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY
+VITE_COGNITO_LOGOUT_URI=$VITE_COGNITO_LOGOUT_URI
 VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI
 VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI
 VITE_TOKENS_API=$VITE_TOKENS_API
@@ -77,7 +78,7 @@ EOF
 # Run the node app inside the docker conatiner
 run_app() {
   # first check if the container is already running
-  container_id=$(docker container ls -qf "ancestor=pkce-build-container")
+  container_id=$(docker container ls -qf "ancestor=tokens-build-container")
 
   if [ ! -z $container_id ] ; then 
      echo "Server already running on http://127.0.0.1:3000/" 
@@ -87,7 +88,7 @@ run_app() {
 	docker run --rm -d -v "$(PWD)":"/build" \
                         -p 127.0.0.1:3000:3000 \
                         -w /build \
-                         pkce-build-container:latest \
+                         tokens-build-container:latest \
                          npm run dev
 
   echo "Vite dev server running on http://127.0.0.1:3000/"

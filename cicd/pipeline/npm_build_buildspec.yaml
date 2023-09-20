@@ -1,6 +1,6 @@
 version: 0.2
 ###
-# This build project builds the docs portal pkce site files ready for upload to s3
+# This build project builds the api tokens portal site files ready for upload to s3
 
 env:
   shell: bash

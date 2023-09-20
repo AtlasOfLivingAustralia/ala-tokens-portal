@@ -41,7 +41,7 @@ phases:
       - echo loading config..
       - set -a ; source env.txt ; set +a
       - export LAMBDA_DEPLOY_PACKAGE=token-email-lambda-$CLEAN_BRANCH-$CODEBUILD_BUILD_NUMBER.zip
-      - export LAMBDA_DEPLOY_PATH=pkce-token-$ENVIRONMENT/lambda/
+      - export LAMBDA_DEPLOY_PATH=api-tokens-portal-$ENVIRONMENT/lambda/
     finally:
       - #echo This always runs
       - #notify Slack on failure
@@ -49,9 +49,9 @@ phases:
   build:
     commands:
       - echo Entered the build phase...
-      # docs portal pkce cloudformation template config
-      - echo Generating the docs portal pkce stack template config
-      - cicd/pipeline/gen_template_config.py --template cicd/pipeline/docs_portal_pkce_template_config.j2 > cicd/app/docs_portal_pkce_template_config.json
+      # api tokens portal cloudformation template config
+      - echo Generating the api tokens portal stack template config
+      - cicd/pipeline/gen_template_config.py --template cicd/pipeline/api_tokens_portal_template_config.j2 > cicd/app/api_tokens_portal_template_config.json
       # lambda cloudformation template config
       - echo Generating the lambda stack template config
       - cicd/pipeline/gen_template_config.py --template cicd/pipeline/lambda_template_config.j2 > cicd/app/lambda_template_config.json
@@ -63,6 +63,7 @@ phases:
       # create the vite build config, .env.production is the default so we put everything in there
       - echo VITE_APP_VERSION=$VITE_APP_VERSION > .env.production
       - echo VITE_OIDC_AUTHORITY=$VITE_OIDC_AUTHORITY >> .env.production
+      - echo VITE_COGNITO_LOGOUT_URI=$VITE_COGNITO_LOGOUT_URI >> .env.production
       - echo VITE_OIDC_REDIRECT_URI=$VITE_OIDC_REDIRECT_URI >> .env.production
       - echo VITE_OIDC_LOGOUT_REDIRECT_URI=$VITE_OIDC_LOGOUT_REDIRECT_URI >> .env.production
       - echo VITE_TOKENS_API=$VITE_TOKENS_API >> .env.production
@@ -80,7 +81,7 @@ artifacts:
   files:
     - cicd/app/$APP_STACK_FILE
     - cicd/app/$LAMBDA_STACK_FILE
-    - cicd/app/docs_portal_pkce_template_config.json
+    - cicd/app/api_tokens_portal_template_config.json
     - cicd/app/lambda_template_config.json
     - .env.production
   name: BuildTemplateConfigArtifact
