@@ -47,9 +47,13 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
 
     if(step && step === 'generation'){
       const clientId = searchParams.get('client_id');
+      const clientSecret = searchParams.get('client_secret');
       setActive(1);
       if(clientId){
         setClientId(clientId)
+      }
+      if(clientSecret){
+        setClientSecret(clientSecret)
       }
       // remove url params after registration visibility state is updated. 
       setSearchParams('');
@@ -120,6 +124,7 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
                       label="Client Secret (Optional)"
                       placeholder="Client secret"
                       type='password'
+                      id='client-secret'
                       description="Client secret of a registered application. Only required for clients registered as private client applications( eg. server side web application)."
                       value={clientSecret} onInput={(event) => setClientSecret(event.currentTarget.value)} 
                   />
