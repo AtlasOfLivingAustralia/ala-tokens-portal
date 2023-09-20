@@ -96,7 +96,7 @@ const  ClientRegistration: React.FC<{config: AuthConfig, updateRegistrationSucce
     const [resourceOwner, setResourceOwner] = useState("");
     const [resourceOwnerEmail, setResourceOwnerEmail] = useState("");
     const [additionalInfo, setAdditionalInfo] = useState("");
-    const [scopes, setScopes] = useState("openid email profile ala/roles"); 
+    const [scopes, setScopes] = useState("openid email profile roles"); 
     const [showOptionalFields, setShowOptionalFields] = useState(false);
     const [registerSuccess, setRegisterSuccess] = useState(false);
     const [registerFailure, setRegisterFailure] = useState(false)
@@ -106,7 +106,7 @@ const  ClientRegistration: React.FC<{config: AuthConfig, updateRegistrationSucce
             "appName": appName,
             "callbackUrl": callbackUrl ? callbackUrl + ', https://tokens.ala.org.au': 'https://tokens.ala.org.au',
             "resourceOwner": resourceOwner,
-            "scopes": scopes ? scopes: 'openid email profile ala/roles',
+            "scopes": scopes ? scopes: 'openid email profile roles',
             "resourceOwnerEmail": resourceOwnerEmail,
             "additionalInfo": additionalInfo
         }
