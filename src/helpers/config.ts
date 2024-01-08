@@ -7,6 +7,7 @@ export interface AuthConfig {
   redirect_uri: string;
   popup_post_logout_redirect_uri?: string; 
   tokens_api?: string;
+  userdetails_url?: string;
 }
 
 const config: AuthConfig = {
@@ -18,6 +19,7 @@ const config: AuthConfig = {
   redirect_uri: import.meta.env.VITE_OIDC_REDIRECT_URI,
   popup_post_logout_redirect_uri: import.meta.env.VITE_OIDC_LOGOUT_REDIRECT_URI,
   tokens_api:  import.meta.env.VITE_TOKENS_API,
+  userdetails_url: import.meta.env.VITE_USERDETAILS_URL,
 };
 
 export default config;

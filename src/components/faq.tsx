@@ -15,13 +15,6 @@ function Faq(): React.ReactElement {
               The level of access to resources, i.e. scopes,  an access token has is defined in the Client Application amongst other permissions and restrictions. These attributes will be applied to any and all access tokens generated using the associated Client Id and Secret. 
             </Accordion.Item>
 
-            <Accordion.Item label="How long will it take to receive the Client ID and Secret?">
-              Once you’ve submitted the registration form, our team will respond to you as soon as they can. This may take some time if they are working through many requests. 
-              <br />
-              Please note, our office hours are Monday to Friday, 9am-5pm Australian Eastern Time, so requests submitted outside of this will not be actioned until the next business day. We also close for Australian public holidays and the holiday period in Dec-Jan each year.
-            </Accordion.Item>
-
-
             <Accordion.Item label="My Client ID and Secret aren’t working. What steps should I try?">
               The first step is to ensure that the Client ID, Secret, and Scopes being used are correct. To check their validity, please follow the the step-by-step token generation process on this site. 
               <br />
