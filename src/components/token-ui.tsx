@@ -136,7 +136,7 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
             </Stepper>
     
             <Group position="center" mt="xl">
-                 <Button   variant="default"  disabled={(clientFormVisible && active == 0)} onClick={ active  > 0 ? prevStep : function(){setClientFormVisible(!clientFormVisible)}}> {active === 0 ? 'Register' :'Back' }</Button>
+                 <Button    variant="default"  disabled={(clientFormVisible && active == 0)} onClick={ active  > 0 ? prevStep : function(){window.open(`${config.userdetails_url}/profile/applications`,"_blank")}}> {active === 0 ? 'Register' :'Back' }</Button>
                 {<Button  disabled={(active === 1  && clientId.length < 1) || active === 2} onClick={function(){nextStep();  setClientFormVisible(false)}}> {active < 1 ? 'Enter Client Details' :'Next' } </Button>}
             </Group>
             <br/>

@@ -116,7 +116,11 @@ const Auth: React.FC<{clientDetails : AuthConfig}> = ({clientDetails}) => {
                       </div>
                   </Group>
                   <br />
-                  
+                  <label>Access token</label>
+                  <Prism style={{width: 550, padding: 20}} mt={12}   language="tsx">
+                    {user.access_token}
+                  </Prism>
+                  <label>Token response</label>
                   <Prism language="json" style={{width: 550}} mt={12}  >
                       {JSON.stringify(user, null, 2)}
                   </Prism>
