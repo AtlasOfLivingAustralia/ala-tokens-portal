@@ -30,6 +30,10 @@ Parameters:
   pLambdaDeployPackage:
     Type: String
     Description: The S3 key of the lambda code package
+  pNodeVersion:
+    Type: String
+    Description: The Node.js runtime version for the lambda (e.g. 24)
+    Default: '24'
   pSourceEmail:
     Type: String
     Description: The source email address, must be a pre verified SES address
@@ -102,7 +106,7 @@ Resources:
       Handler: register_client.handler
       MemorySize: 128
       Role: !GetAtt TokenEmailLambdaExecutionRole.Arn
-      Runtime: nodejs18.x
+      Runtime: !Sub nodejs${pNodeVersion}.x
       Timeout: 3
       Tags:
         - Key: build
