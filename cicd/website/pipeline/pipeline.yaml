@@ -45,6 +45,14 @@ Parameters:
     Description: GitHub owner
     Type: String
 
+  pPipelineFingerprint:
+    Description: The fingerprint of the pipeline, used to determine if it's been modified
+    Type: String
+
+  pProductComponent:
+    Description: The product component
+    Type: String
+
   pProductName:
     Description: The name of the product
     Type: String
@@ -60,6 +68,14 @@ Conditions:
   IsDev: !Equals
     - !Ref pEnvironment
     - development
+
+  AutoDeploy: !Equals
+    - !Ref pAutoDeploy
+    - true
+
+  AllowTeardown: !Equals
+    - !Ref pAllowTeardown
+    - true
 
 Resources:
   ExportConfig:
@@ -79,14 +95,14 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:5.0
+        Image: aws/codebuild/standard:8.0
         EnvironmentVariables:
           - Name: ARTIFACTS_BUCKET
             Value: !ImportValue
               Fn::Sub: ${pBucketsStackName}-${AWS::Region}-CodePipelineArtifactBucketName
       Source:
         Type: CODEPIPELINE
-        BuildSpec: cicd/pipeline/export_config_buildspec.yaml
+        BuildSpec: !Sub cicd/${pProductComponent}/pipeline/export_config_buildspec.yaml
       TimeoutInMinutes: 5
 
   BuildCode:
@@ -106,14 +122,14 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:6.0
+        Image: aws/codebuild/standard:8.0
         EnvironmentVariables:
           - Name: ARTIFACTS_BUCKET
             Value: !ImportValue
               Fn::Sub: ${pBucketsStackName}-${AWS::Region}-CodePipelineArtifactBucketName
       Source:
         Type: CODEPIPELINE
-        BuildSpec: cicd/pipeline/npm_build_buildspec.yaml
+        BuildSpec: !Sub cicd/${pProductComponent}/pipeline/npm_build_buildspec.yaml
       TimeoutInMinutes: 10
 
   EmptyBucket:
@@ -133,14 +149,14 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:5.0
+        Image: aws/codebuild/standard:8.0
         EnvironmentVariables:
           - Name: ARTIFACTS_BUCKET
             Value: !ImportValue
               Fn::Sub: ${pBucketsStackName}-${AWS::Region}-CodePipelineArtifactBucketName
       Source:
         Type: CODEPIPELINE
-        BuildSpec: cicd/pipeline/empty_bucket_buildspec.yaml
+        BuildSpec: !Sub cicd/${pProductComponent}/pipeline/empty_bucket_buildspec.yaml
       TimeoutInMinutes: 5
 
   Pipeline:
@@ -152,15 +168,40 @@ Resources:
             - IsDev
             - !Ref pCleanBranch
             - !Ref pEnvironment
+      PipelineType: V2
       RoleArn: !ImportValue
         Fn::Sub: ${pBootstrapStackName}-CodePipelineServiceRoleArn
       ArtifactStore:
         Type: S3
         Location: !ImportValue
           Fn::Sub: ${pBucketsStackName}-${AWS::Region}-CodePipelineArtifactBucketName
-      DisableInboundStageTransitions:
-        - Reason: To prevent accidental teardown
-          StageName: Teardown
+      DisableInboundStageTransitions: !If
+        - AllowTeardown
+        - - Reason: To prevent accidental teardown
+            StageName: Teardown
+        - !Ref AWS::NoValue
+      RestartExecutionOnUpdate: !Ref pRestartExecutionOnUpdate
+      Triggers:
+        - ProviderType: CodeStarSourceConnection
+          GitConfiguration:
+            Push:
+              - Branches:
+                  Includes:
+                    - !If
+                      - AutoDeploy
+                      - !Ref pGitHubBranch
+                      - bogo-branch
+                FilePaths:
+                  Includes:
+                    - !Sub cicd/${pProductComponent}/**
+            SourceActionName: CheckoutSrc
+      Variables:
+        - Name: SRC_BRANCH
+          DefaultValue: !Ref pGitHubBranch
+          Description: The branch this pipeline is deploying from
+        - Name: PIPELINE_FINGERPRINT
+          DefaultValue: !Ref pPipelineFingerprint
+          Description: The fingerprint of the pipeline, used to determine if it's been modified
       Stages:
         - Name: Checkout_Source
           Actions:
@@ -175,8 +216,8 @@ Resources:
                   Fn::Sub: ${pBootstrapStackName}-CodestarConnectionArn
                 FullRepositoryId: !Sub ${pGitHubOwner}/${pGitHubRepositoryName}
                 BranchName: !Ref pGitHubBranch
-                OutputArtifactFormat: CODE_ZIP
-                DetectChanges: false
+                OutputArtifactFormat: CODEBUILD_CLONE_REF
+                DetectChanges: !Ref pAutoDeploy
               Namespace: CheckoutSrcNS
               OutputArtifacts:
                 - Name: SourceArtifact
@@ -190,7 +231,16 @@ Resources:
                 Provider: CodeBuild
               Configuration:
                 ProjectName: !Ref ExportConfig
-                EnvironmentVariables: !Sub '[ { "name":"SRC_BRANCH", "value":"#{CheckoutSrcNS.BranchName}" }, { "name":"COMMIT_ID", "value":"#{CheckoutSrcNS.CommitId}" }, { "name":"ENVIRONMENT", "value":"${pEnvironment}" } ]'
+                EnvironmentVariables: !Sub |
+                  [
+                   { "name":"CLEAN_BRANCH", "value":"${pCleanBranch}" },
+                   { "name":"COMMIT_ID", "value":"#{CheckoutSrcNS.CommitId}" },
+                   { "name":"ENVIRONMENT", "value":"${pEnvironment}" },
+                   { "name":"PIPELINE_FINGERPRINT", "value":"#{variables.PIPELINE_FINGERPRINT}" },
+                   { "name":"PRODUCT_COMPONENT", "value":"${pProductComponent}" },
+                   { "name":"PRODUCT_NAME", "value":"${pProductName}" },
+                   { "name":"SRC_BRANCH", "value":"${pGitHubBranch}" }
+                  ]
               Namespace: ExportConfigNS
               InputArtifacts:
                 - Name: SourceArtifact
@@ -204,9 +254,12 @@ Resources:
                 Version: 1
                 Provider: CloudFormation
               Configuration:
-                TemplatePath: ExportConfigArtifact::cicd/app/#{ExportConfigNS.LAMBDA_STACK_FILE}
-                TemplateConfiguration: ExportConfigArtifact::cicd/app/lambda_template_config.json
-                ActionMode: CREATE_UPDATE
+                TemplatePath: !Sub ExportConfigArtifact::cicd/${pProductComponent}/app/#{ExportConfigNS.LAMBDA_STACK_FILE_PFIX}.yaml
+                TemplateConfiguration: !Sub ExportConfigArtifact::cicd/${pProductComponent}/app/#{ExportConfigNS.LAMBDA_STACK_FILE_PFIX}_template_config.json
+                ActionMode: !If
+                  - IsDev
+                  - REPLACE_ON_FAILURE
+                  - CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND,CAPABILITY_NAMED_IAM
                 RoleArn: !ImportValue
                   Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
@@ -223,9 +276,12 @@ Resources:
                 Version: 1
                 Provider: CloudFormation
               Configuration:
-                TemplatePath: ExportConfigArtifact::cicd/app/#{ExportConfigNS.APP_STACK_FILE}
-                TemplateConfiguration: ExportConfigArtifact::cicd/app/api_tokens_portal_template_config.json
-                ActionMode: CREATE_UPDATE
+                TemplatePath: !Sub ExportConfigArtifact::cicd/${pProductComponent}/app/#{ExportConfigNS.APP_STACK_FILE_PFIX}.yaml
+                TemplateConfiguration: !Sub ExportConfigArtifact::cicd/${pProductComponent}/app/#{ExportConfigNS.APP_STACK_FILE_PFIX}_template_config.json
+                ActionMode: !If
+                  - IsDev
+                  - REPLACE_ON_FAILURE
+                  - CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
                 RoleArn: !ImportValue
                   Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
@@ -246,7 +302,12 @@ Resources:
               Configuration:
                 ProjectName: !Ref BuildCode
                 PrimarySource: SourceArtifact
-                EnvironmentVariables: '[ { "name":"SRC_BRANCH", "value":"#{CheckoutSrcNS.BranchName}" }, { "name":"NODE_VERSION", "value":"#{ExportConfigNS.NODE_VERSION}" }, { "name":"COMMIT_ID", "value":"#{CheckoutSrcNS.CommitId}" } ]'
+                EnvironmentVariables: |
+                  [
+                   { "name":"SRC_BRANCH", "value":"#{CheckoutSrcNS.BranchName}" },
+                   { "name":"NODE_VERSION", "value":"#{ExportConfigNS.NODE_VERSION}" },
+                   { "name":"COMMIT_ID", "value":"#{CheckoutSrcNS.CommitId}" }
+                  ]
               Namespace: BuildCodeNS
               InputArtifacts:
                 - Name: SourceArtifact
@@ -262,7 +323,11 @@ Resources:
                 Provider: CodeBuild
               Configuration:
                 ProjectName: !Ref EmptyBucket
-                EnvironmentVariables: '[ { "name":"SOURCE_BUCKET", "value":"#{ExportConfigNS.SOURCE_BUCKET}" }, { "name":"BUCKET_PATH", "value":"#{ExportConfigNS.BUCKET_PATH}" } ]'
+                EnvironmentVariables: |
+                  [
+                   { "name":"SOURCE_BUCKET", "value":"#{ExportConfigNS.SOURCE_BUCKET}" },
+                   { "name":"BUCKET_PATH", "value":"#{ExportConfigNS.BUCKET_PATH}" }
+                  ]
               Namespace: EmptyBucketPreDeployNS
               InputArtifacts:
                 - Name: SourceArtifact
@@ -282,87 +347,88 @@ Resources:
               InputArtifacts:
                 - Name: BuildCodeArtifact
               RunOrder: 3
-        - Name: Teardown
-          Actions:
-            - Name: ApprovalForAppTeardown
-              ActionTypeId:
-                Owner: AWS
-                Category: Approval
-                Version: 1
-                Provider: Manual
-              Configuration:
-                CustomData: Approval required to tear down this stack
-              RunOrder: 1
-            - Name: EmptyBucketForTeardown
-              ActionTypeId:
-                Owner: AWS
-                Category: Build
-                Version: 1
-                Provider: CodeBuild
-              Configuration:
-                ProjectName: !Ref EmptyBucket
-                EnvironmentVariables: |
-                  [
-                    { "name":"SOURCE_BUCKET", "value":"#{ExportConfigNS.SOURCE_BUCKET}" },
-                    { "name":"BUCKET_PATH", "value":"#{ExportConfigNS.BUCKET_PATH}" }
-                  ]
-              Namespace: EmptyBucketForTeardownNS
-              InputArtifacts:
-                - Name: SourceArtifact
-              RunOrder: 2
-            - Name: TeardownAppStack
-              ActionTypeId:
-                Owner: AWS
-                Category: Deploy
-                Version: 1
-                Provider: CloudFormation
-              Configuration:
-                ActionMode: DELETE_ONLY
-                StackName: '#{ExportConfigNS.APP_STACK_NAME}'
-                RoleArn: !ImportValue
-                  Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
-              RunOrder: 3
-            - Name: TeardownLambdaStack
-              ActionTypeId:
-                Owner: AWS
-                Category: Deploy
-                Version: 1
-                Provider: CloudFormation
-              Configuration:
-                ActionMode: DELETE_ONLY
-                StackName: '#{ExportConfigNS.LAMBDA_STACK_NAME}'
-                RoleArn: !ImportValue
-                  Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
-              RunOrder: 3
-            - Name: ApprovalForPipelineTeardown
-              ActionTypeId:
-                Owner: AWS
-                Category: Approval
-                Version: 1
-                Provider: Manual
-              Configuration:
-                CustomData: Approval required to tear down this stack
-              RunOrder: 4
-            - Name: TeardownCodePipeline
-              ActionTypeId:
-                Owner: AWS
-                Category: Deploy
-                Version: 1
-                Provider: CloudFormation
-              Configuration:
-                ActionMode: DELETE_ONLY
-                StackName: !Ref AWS::StackName
-                RoleArn: !ImportValue
-                  Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
-              RunOrder: 5
+        - !If
+          - AllowTeardown
+          - Name: Teardown
+            Actions:
+              - Name: ApprovalForAppTeardown
+                ActionTypeId:
+                  Owner: AWS
+                  Category: Approval
+                  Version: 1
+                  Provider: Manual
+                Configuration:
+                  CustomData: Approval required to tear down this stack
+                RunOrder: 1
+              - Name: EmptyBucketForTeardown
+                ActionTypeId:
+                  Owner: AWS
+                  Category: Build
+                  Version: 1
+                  Provider: CodeBuild
+                Configuration:
+                  ProjectName: !Ref EmptyBucket
+                  EnvironmentVariables: |
+                    [
+                      { "name":"SOURCE_BUCKET", "value":"#{ExportConfigNS.SOURCE_BUCKET}" },
+                      { "name":"BUCKET_PATH", "value":"#{ExportConfigNS.BUCKET_PATH}" }
+                    ]
+                Namespace: EmptyBucketForTeardownNS
+                InputArtifacts:
+                  - Name: SourceArtifact
+                RunOrder: 2
+              - Name: TeardownAppStack
+                ActionTypeId:
+                  Owner: AWS
+                  Category: Deploy
+                  Version: 1
+                  Provider: CloudFormation
+                Configuration:
+                  ActionMode: DELETE_ONLY
+                  StackName: '#{ExportConfigNS.APP_STACK_NAME}'
+                  RoleArn: !ImportValue
+                    Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
+                RunOrder: 3
+              - Name: TeardownLambdaStack
+                ActionTypeId:
+                  Owner: AWS
+                  Category: Deploy
+                  Version: 1
+                  Provider: CloudFormation
+                Configuration:
+                  ActionMode: DELETE_ONLY
+                  StackName: '#{ExportConfigNS.LAMBDA_STACK_NAME}'
+                  RoleArn: !ImportValue
+                    Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
+                RunOrder: 3
+              - Name: ApprovalForPipelineTeardown
+                ActionTypeId:
+                  Owner: AWS
+                  Category: Approval
+                  Version: 1
+                  Provider: Manual
+                Configuration:
+                  CustomData: Approval required to tear down this stack
+                RunOrder: 4
+              - Name: TeardownCodePipeline
+                ActionTypeId:
+                  Owner: AWS
+                  Category: Deploy
+                  Version: 1
+                  Provider: CloudFormation
+                Configuration:
+                  ActionMode: DELETE_ONLY
+                  StackName: !Ref AWS::StackName
+                  RoleArn: !ImportValue
+                    Fn::Sub: ${pBootstrapStackName}-CloudFormationServiceRoleArn
+                RunOrder: 5
+          - !Ref AWS::NoValue
 
   CodeBuildLogGroup:
     DeletionPolicy: Delete
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub
-        - /aws/codebuild/${ProjectName}
-        - ProjectName: !Ref ExportConfig
+      LogGroupName: !Sub /aws/codebuild/${ExportConfig}
       RetentionInDays: 30
       Tags:
         - Key: Name
@@ -372,9 +438,7 @@ Resources:
     DeletionPolicy: Delete
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub
-        - /aws/codebuild/${ProjectName}
-        - ProjectName: !Ref BuildCode
+      LogGroupName: !Sub /aws/codebuild/${BuildCode}
       RetentionInDays: 30
       Tags:
         - Key: Name
@@ -384,9 +448,7 @@ Resources:
     DeletionPolicy: Delete
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub
-        - /aws/codebuild/${ProjectName}
-        - ProjectName: !Ref EmptyBucket
+      LogGroupName: !Sub /aws/codebuild/${EmptyBucket}
       RetentionInDays: 30
       Tags:
         - Key: Name
