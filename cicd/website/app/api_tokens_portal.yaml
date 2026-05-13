@@ -67,19 +67,24 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Action:
+          - Sid: GrantCloudFrontAccess
+            Action:
               - s3:GetObject
             Effect: Allow
-            Resource: !Join
-              - ""
-              - - 'arn:aws:s3:::'
-                - !Ref ApiTokensPortalBucket
-                - /*
+            Resource: !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
             Principal:
-              AWS: !Join
-                - ""
-                - - 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity '
-                  - !Ref ApiTokensPortalCloudFrontOia
+              AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${ApiTokensPortalCloudFrontOia}
+          - Sid: TLSAccessOnly
+            Action:
+              - s3:*
+            Effect: Deny
+            Resource:
+              - !Sub arn:aws:s3:::${ApiTokensPortalBucket}
+              - !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
+            Principal: '*'
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
 
   ApiTokensPortalDnsRecord:
     Type: AWS::Route53::RecordSet
