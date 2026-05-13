@@ -1,5 +1,7 @@
 FROM ubuntu:26.04
 
+ARG NODE_VERSION
+
 # Install system dependencies and Python tooling
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
@@ -19,6 +21,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
         unzip \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+# install node apt repo
+RUN curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
+RUN apt-get update && apt-get -y install nodejs \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Ensure ubuntu user can sudo without a password
@@ -47,6 +54,7 @@ RUN python3 -m venv /opt/pyenv \
         pre-commit-hooks \
         black \
         pydot \
+        jinja2 \
         pyyaml
 
 # Make the virtual environment the default Python and set locale
