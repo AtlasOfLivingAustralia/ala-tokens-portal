@@ -159,6 +159,29 @@ Resources:
         BuildSpec: !Sub cicd/${pProductComponent}/pipeline/empty_bucket_buildspec.yaml
       TimeoutInMinutes: 5
 
+  DeployNotification:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub
+        - ${pProductName}-${pProductComponent}-deploy-notification-${ResourceName}
+        - ResourceName: !If
+            - IsDev
+            - !Ref pCleanBranch
+            - !Ref pEnvironment
+      Description: Send out the deploy notifications
+      ServiceRole: !ImportValue
+        Fn::Sub: ${pBootstrapStackName}-CodeBuildServiceRoleArn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:8.0
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Sub cicd/${pProductComponent}/pipeline/deploy_notification_buildspec.yaml
+      TimeoutInMinutes: 5
+
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -347,6 +370,32 @@ Resources:
               InputArtifacts:
                 - Name: BuildCodeArtifact
               RunOrder: 3
+            - Name: DeployNotification
+              ActionTypeId:
+                Owner: AWS
+                Category: Build
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref DeployNotification
+                EnvironmentVariables: !Sub |
+                  [
+                    { "name":"AUTHOR", "value":"#{CheckoutSrcNS.AuthorDisplayName}" },
+                    { "name":"CLEAN_BRANCH", "value":"${pCleanBranch}" },
+                    { "name":"COMMIT_ID", "value":"#{CheckoutSrcNS.CommitId}" },
+                    { "name":"ENVIRONMENT", "value":"${pEnvironment}" },
+                    { "name":"EXECUTION_ID", "value":"#{codepipeline.PipelineExecutionId}" },
+                    { "name":"PRODUCT_COMPONENT", "value":"#{ExportConfigNS.PRODUCT_COMPONENT}" },
+                    { "name":"PRODUCT_NAME", "value":"#{ExportConfigNS.PRODUCT_NAME}" },
+                    { "name":"REPO", "value":"#{CheckoutSrcNS.FullRepositoryName}" },
+                    { "name":"SLACK_ALERT_CHANNEL", "value":"#{ExportConfigNS.SLACK_ALERT_CHANNEL}" },
+                    { "name":"SLACK_DEPLOY_NOTIFICATION", "value":"#{ExportConfigNS.SLACK_DEPLOY_NOTIFICATION}" },
+                    { "name":"SRC_BRANCH", "value":"${pGitHubBranch}" }
+                  ]
+              Namespace: DeployNotificationNS
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 4
         - !If
           - AllowTeardown
           - Name: Teardown
