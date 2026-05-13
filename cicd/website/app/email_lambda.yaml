@@ -37,6 +37,10 @@ Parameters:
     Description: The S3 key of the lambda code package
     Type: String
 
+  pNodeVersion:
+    Description: The major version of node to use for the lambda runtime
+    Type: String
+
   pSourceEmail:
     Description: The source email address, must be a pre verified SES address
     Type: String
@@ -109,7 +113,7 @@ Resources:
       Handler: register_client.handler
       MemorySize: 128
       Role: !GetAtt TokenEmailLambdaExecutionRole.Arn
-      Runtime: nodejs18.x
+      Runtime: !Sub nodejs${pNodeVersion}.x
       Timeout: 3
       Tags:
         - Key: build
@@ -119,9 +123,7 @@ Resources:
     DeletionPolicy: Delete
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub
-        - /aws/lambda/${FunctionName}
-        - FunctionName: !Ref TokenEmailLambda
+      LogGroupName: !Sub /aws/lambda/${TokenEmailLambda}
       RetentionInDays: 30
       Tags:
         - Key: Name
