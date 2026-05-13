@@ -14,7 +14,7 @@ parser.add_argument("--env",    "-e", help="Environment", required=False, defaul
 
 args = parser.parse_args()
 
-# associate the branch with an environmant 
+# associate the branch with an environmant
 if re.search('^main$|^master$', args.branch) and args.env == 'prod':
   #print(f"Branch {args.branch} matched main")
   print('production')
@@ -27,4 +27,3 @@ elif re.search('^testing$', args.branch):
 else:
   #print(f"Branch {args.branch} didnt match")
   print('development')
-   
