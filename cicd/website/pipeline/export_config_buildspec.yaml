@@ -24,6 +24,8 @@ env:
     - SLACK_ALERT_CHANNEL
     - SLACK_DEPLOY_NOTIFICATION
     - SOURCE_BUCKET
+    - SUB_DOMAIN
+    - HOSTED_ZONE
 
 phases:
 
