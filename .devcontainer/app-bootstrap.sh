@@ -5,7 +5,9 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 echo "Preparing local app configuration..."
-eval "$(python3 cicd/gen_env_vars.py --env local --conf config.ini --clean-branch local)"
+set -a
+eval "$(python3 cicd/gen_env_vars.py --env local --conf cicd/website/config.ini --clean-branch local)"
+set +a
 
 rm -f .env.production
 cat > .env.local <<EOF
