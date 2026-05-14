@@ -73,7 +73,10 @@ Resources:
             Effect: Allow
             Resource: !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
             Principal:
-              AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${ApiTokensPortalCloudFrontOia}
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ApiTokensPortalCloudFrontDistro}
           - Sid: TLSAccessOnly
             Action:
               - s3:*
@@ -126,11 +129,9 @@ Resources:
         Origins:
           - DomainName: !Sub ${pSourceBucket}.s3.${AWS::Region}.amazonaws.com
             Id: api-tokens-portal-s3
+            OriginAccessControlId: !Ref ApiTokensPortalCloudFrontOac
             S3OriginConfig:
-              OriginAccessIdentity: !Join
-                - ""
-                - - origin-access-identity/cloudfront/
-                  - !Ref ApiTokensPortalCloudFrontOia
+              OriginAccessIdentity: ""
             OriginPath: !Sub /${pBucketPath}
         ViewerCertificate:
           AcmCertificateArn: !Ref pSslCertificate
@@ -166,11 +167,20 @@ Resources:
             QueryStrings:
               - cb
 
-  ApiTokensPortalCloudFrontOia:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  ApiTokensPortalCloudFrontOac:
+    Type: AWS::CloudFront::OriginAccessControl
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub CF Origin Access Identity for the api tokens portal ${pEnvironment}
+      OriginAccessControlConfig:
+        Name: !Sub
+          - ApiTokensPortal-OAC-${ResourceName}
+          - ResourceName: !If
+              - IsDev
+              - !Ref pCleanBranch
+              - !Ref pEnvironment
+        Description: !Sub CF Origin Access Control for the api tokens portal ${pEnvironment}
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
   ApiTokensPortalCloudFrontFunction:
     Type: AWS::CloudFront::Function
