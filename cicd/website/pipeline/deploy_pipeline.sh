@@ -150,4 +150,3 @@ aws cloudformation deploy \
         pProductName=$PRODUCT_NAME \
         pProductComponent=$PRODUCT_COMPONENT \
         pRestartExecutionOnUpdate=$RESTART_PIPELINE_ON_UPDATE \
-        pUsEast1CodePipelineArtifactBucketName=$US_EAST_ARTIFACT_BUCKET \
