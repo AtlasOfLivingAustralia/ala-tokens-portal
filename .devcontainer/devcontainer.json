@@ -69,6 +69,8 @@
                 "!GetAZs scalar",
                 "!If sequence",
                 "!ImportValue scalar",
+                "!ImportValue sequence",
+                "!ImportValue mapping",
                 "!Join sequence",
                 "!Not sequence",
                 "!Or sequence",
