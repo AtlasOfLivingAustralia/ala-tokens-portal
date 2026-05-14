@@ -75,7 +75,7 @@ Resources:
                   - ses:SendRawEmail
                 Resource:
                   - '*'
-          PolicyName: CognitoUserMigrationLambdaPolicy
+          PolicyName: SendEmailPolicy
 
   LambdaResourcePolicy:
     Type: AWS::Lambda::Permission
@@ -106,7 +106,7 @@ Resources:
       MemorySize: 128
       Role: !GetAtt TokenEmailLambdaExecutionRole.Arn
       Runtime: !Sub nodejs${pNodeVersion}.x
-      Timeout: 3
+      Timeout: 15
       Tags:
         - Key: build
           Value: !Ref pBuild

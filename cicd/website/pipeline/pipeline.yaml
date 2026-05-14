@@ -217,6 +217,9 @@ Resources:
                 FilePaths:
                   Includes:
                     - !Sub cicd/${pProductComponent}/**
+                    - src/**
+                    - index.html
+                    - package.json
             SourceActionName: CheckoutSrc
       Variables:
         - Name: SRC_BRANCH
@@ -498,6 +501,16 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/codebuild/${EmptyBucket}
+      RetentionInDays: 30
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+
+  DeplyNotificationLogGroup:
+    DeletionPolicy: Delete
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/codebuild/${DeployNotification}
       RetentionInDays: 30
       Tags:
         - Key: Name
