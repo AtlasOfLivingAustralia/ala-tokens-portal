@@ -7,7 +7,7 @@ Parameters:
     Description: The AWS environment this belongs to
     Type: String
 
-  pBucketName:
+  pSourceBucket:
     Description: The bucket name for the site
     Type: String
 
@@ -42,7 +42,7 @@ Resources:
     DeletionPolicy: Delete
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${pBucketName}
+      BucketName: !Ref pSourceBucket
       LifecycleConfiguration:
         Rules:
           - Id: delete incomplete uploads
@@ -58,7 +58,7 @@ Resources:
         - Key: component
           Value: website
         - Key: Name
-          Value: !Sub api-tokens-portal-${pEnvironment}
+          Value: !Ref pSourceBucket
 
   ApiTokensPortalBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -124,7 +124,7 @@ Resources:
         HttpVersion: http2
         IPV6Enabled: false
         Origins:
-          - DomainName: !Sub ${pBucketName}.s3.${AWS::Region}.amazonaws.com
+          - DomainName: !Sub ${pSourceBucket}.s3.${AWS::Region}.amazonaws.com
             Id: api-tokens-portal-s3
             S3OriginConfig:
               OriginAccessIdentity: !Join
