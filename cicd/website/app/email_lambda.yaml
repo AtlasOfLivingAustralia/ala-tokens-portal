@@ -1,10 +1,6 @@
 Description: Lambda to send email notification of a token request
 
 Parameters:
-  pArtifactsBucket:
-    Description: The bucket where the lambda code package is stored
-    Type: String
-
   pBuild:
     Description: The build number
     Type: Number
@@ -102,9 +98,7 @@ Resources:
             - IsDev
             - !Ref pCleanBranch
             - !Ref pEnvironment
-      Code:
-        S3Bucket: !Ref pArtifactsBucket
-        S3Key: !Ref pLambdaDeployPackage
+      Code: ../../../src/lambda
       Description: Send an email to ALA support when someone requests an API token
       Environment:
         Variables:
