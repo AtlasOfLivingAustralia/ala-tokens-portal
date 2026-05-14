@@ -7,8 +7,12 @@
     }
   },
   "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/ubuntu/.ssh,type=bind,consistency=cached,readonly"
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/ubuntu/.ssh,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.aws,target=/home/ubuntu/.aws,type=bind,consistency=cached"
   ],
+  "containerEnv": {
+    "AWS_PROFILE": "${localEnv:AWS_PROFILE}"
+  },
   "postCreateCommand": "bash .devcontainer/setup.sh && bash .devcontainer/app-bootstrap.sh",
   "postStartCommand": "bash .devcontainer/start-dev-server.sh",
   "forwardPorts": [3000],
