@@ -9,12 +9,10 @@ env:
   variables:
     DEBIAN_FRONTEND: "noninteractive"
   exported-variables:
-    - APP_STACK_FILE
     - APP_STACK_FILE_PFIX
     - APP_STACK_NAME
     - BUCKET_PATH
     - CODEBUILD_BUILD_NUMBER
-    - LAMBDA_STACK_FILE
     - LAMBDA_STACK_FILE_PFIX
     - LAMBDA_STACK_NAME
     - MAX_AGE
