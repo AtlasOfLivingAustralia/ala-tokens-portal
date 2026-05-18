@@ -16,7 +16,7 @@ phases:
       - apt-get update
       - apt-get -y install nodejs
       # node installs
-      - npm i
+      - npm ci
   pre_build:
     commands:
       # it would be great to have tests here
