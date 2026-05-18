@@ -511,15 +511,16 @@ Resources:
         - Key: Name
           Value: !Ref AWS::StackName
 
-          #DeployNotificationLogGroup:
-          #  DeletionPolicy: Delete
-          #  Type: AWS::Logs::LogGroup
-          #  Properties:
-          #    LogGroupName: !Sub /aws/codebuild/${DeployNotification}
-          #    RetentionInDays: 30
-          #    Tags:
-          #      - Key: Name
-          #        Value: !Ref AWS::StackName
+  DeployNotificationLogGroup:
+    DeletionPolicy: Delete
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/codebuild/${DeployNotification}
+      RetentionInDays: 30
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+
 Outputs:
   PipelineUrl:
     Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
