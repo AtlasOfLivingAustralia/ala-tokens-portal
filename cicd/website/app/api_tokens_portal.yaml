@@ -1,47 +1,53 @@
 AWSTemplateFormatVersion: "2010-09-09"
+
 Description: Api Docs portal PKCE token generator
 
 Parameters:
   pEnvironment:
-    Type: String
     Description: The AWS environment this belongs to
-  pBucketName:
     Type: String
+
+  pSourceBucket:
     Description: The bucket name for the site
+    Type: String
+
   pBucketPath:
-    Type: String
     Description: Optional path that the files are stored under in the bucket
+    Type: String
+
   pCleanBranch:
-    Type: String
     Description: A cleaned version of the code branch name
+    Type: String
     Default: development
+
   pHostedZone:
-    Type: String
     Description: The hosted zone the site is accessed under
+    Type: String
+
   pSubDomain:
-    Type: String
     Description: The subdomain the site is accessed on
-  pSslCertificate:
     Type: String
-    Description: The arn of the SSL certificate to be used 
+
+  pSslCertificate:
+    Description: The arn of the SSL certificate to be used
+    Type: String
 
 Conditions:
-  IsDev: !Equals 
+  IsDev: !Equals
     - !Ref pEnvironment
     - development
 
 Resources:
-  
   ApiTokensPortalBucket:
-    Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete
+    Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${pBucketName}
+      BucketName: !Ref pSourceBucket
       LifecycleConfiguration:
         Rules:
           - Id: delete incomplete uploads
             AbortIncompleteMultipartUpload:
-               DaysAfterInitiation: 1
+              DaysAfterInitiation: 1
             Status: Enabled
       PublicAccessBlockConfiguration:
         BlockPublicAcls: TRUE
@@ -52,32 +58,47 @@ Resources:
         - Key: component
           Value: website
         - Key: Name
-          Value: !Sub api-tokens-portal-${pEnvironment}
+          Value: !Ref pSourceBucket
 
   ApiTokensPortalBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref ApiTokensPortalBucket
       PolicyDocument:
-        Version: 2012-10-17
+        Version: "2012-10-17"
         Statement:
-          - Action:
-              - 's3:GetObject'
+          - Sid: GrantCloudFrontAccess
+            Action:
+              - s3:GetObject
             Effect: Allow
-            Resource: !Join [ '', ['arn:aws:s3:::', !Ref ApiTokensPortalBucket ,'/*' ]]
-            Principal: 
-              AWS: !Join [ '', [ 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ', !Ref ApiTokensPortalCloudFrontOia ]]
+            Resource: !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ApiTokensPortalCloudFrontDistro}
+          - Sid: TLSAccessOnly
+            Action:
+              - s3:*
+            Effect: Deny
+            Resource:
+              - !Sub arn:aws:s3:::${ApiTokensPortalBucket}
+              - !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
+            Principal: '*'
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
 
   ApiTokensPortalDnsRecord:
     Type: AWS::Route53::RecordSet
     Properties:
-      Name: !Sub "${pSubDomain}.${pHostedZone}"
+      Name: !Sub ${pSubDomain}.${pHostedZone}
       Comment: !Sub api tokens portal domain name for the ${pEnvironment} environment
       Type: A
       AliasTarget:
         DNSName: !GetAtt ApiTokensPortalCloudFrontDistro.DomainName
         HostedZoneId: Z2FDTNDATAQYW2
-      HostedZoneName: !Sub "${pHostedZone}."
+      HostedZoneName: !Sub ${pHostedZone}.
 
   ApiTokensPortalCloudFrontDistro:
     Type: AWS::CloudFront::Distribution
@@ -85,32 +106,33 @@ Resources:
     Properties:
       DistributionConfig:
         Aliases:
-          - !Sub "${pSubDomain}.${pHostedZone}"
+          - !Sub ${pSubDomain}.${pHostedZone}
         Comment: !Sub api tokens portal site ${pEnvironment}
         DefaultCacheBehavior:
-          AllowedMethods: 
+          AllowedMethods:
             - GET
             - HEAD
-          CachedMethods: 
+          CachedMethods:
             - GET
             - HEAD
-          CachePolicyId: !Ref ApiTokensPortalCachePolicy 
+          CachePolicyId: !Ref ApiTokensPortalCachePolicy
           Compress: true
           FunctionAssociations:
             - EventType: viewer-request
               FunctionARN: !GetAtt ApiTokensPortalCloudFrontFunction.FunctionMetadata.FunctionARN
           TargetOriginId: api-tokens-portal-s3
-          ViewerProtocolPolicy: redirect-to-https 
+          ViewerProtocolPolicy: redirect-to-https
         DefaultRootObject: index.html
         Enabled: true
         HttpVersion: http2
         IPV6Enabled: false
         Origins:
-          - DomainName: !Sub "${pBucketName}.s3.${AWS::Region}.amazonaws.com"
+          - DomainName: !Sub ${pSourceBucket}.s3.${AWS::Region}.amazonaws.com
             Id: api-tokens-portal-s3
+            OriginAccessControlId: !Ref ApiTokensPortalCloudFrontOac
             S3OriginConfig:
-              OriginAccessIdentity: !Join ['', ['origin-access-identity/cloudfront/', !Ref ApiTokensPortalCloudFrontOia ]]
-            OriginPath: !Sub "/${pBucketPath}"
+              OriginAccessIdentity: ""
+            OriginPath: !Sub /${pBucketPath}
         ViewerCertificate:
           AcmCertificateArn: !Ref pSslCertificate
           MinimumProtocolVersion: TLSv1.2_2021
@@ -121,59 +143,76 @@ Resources:
 
   ApiTokensPortalCachePolicy:
     Type: AWS::CloudFront::CachePolicy
-    Properties: 
-      CachePolicyConfig: 
+    Properties:
+      CachePolicyConfig:
         Comment: !Sub CF Cache Policy for the api tokens portal site ${pEnvironment}
         DefaultTTL: 300
         MaxTTL: 86400
         MinTTL: 1
         Name: !Sub
-                - "ApiTokensPortal-cache-Policy-${ResourceName}"
-                - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
-        ParametersInCacheKeyAndForwardedToOrigin: 
-          CookiesConfig: 
+          - ApiTokensPortal-cache-Policy-${ResourceName}
+          - ResourceName: !If
+              - IsDev
+              - !Ref pCleanBranch
+              - !Ref pEnvironment
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
             CookieBehavior: none
           EnableAcceptEncodingBrotli: true
           EnableAcceptEncodingGzip: true
-          HeadersConfig: 
+          HeadersConfig:
             HeaderBehavior: none
-          QueryStringsConfig: 
+          QueryStringsConfig:
             QueryStringBehavior: whitelist
-            QueryStrings: 
+            QueryStrings:
               - cb
 
-  ApiTokensPortalCloudFrontOia:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  ApiTokensPortalCloudFrontOac:
+    Type: AWS::CloudFront::OriginAccessControl
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub CF Origin Access Identity for the api tokens portal ${pEnvironment}
+      OriginAccessControlConfig:
+        Name: !Sub
+          - ApiTokensPortal-OAC-${ResourceName}
+          - ResourceName: !If
+              - IsDev
+              - !Ref pCleanBranch
+              - !Ref pEnvironment
+        Description: !Sub CF Origin Access Control for the api tokens portal ${pEnvironment}
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
   ApiTokensPortalCloudFrontFunction:
     Type: AWS::CloudFront::Function
-    Properties: 
+    Properties:
       AutoPublish: true
       FunctionCode: |
-                      function handler(event) {
-                        var request = event.request;
+        function handler(event) {
+          var request = event.request;
 
-                        if (!request.uri.includes('.')) {
-                          request.uri = "/index.html";
-                          request.querystring = {}
-                        }
+          if (!request.uri.includes('.')) {
+            request.uri = "/index.html";
+            request.querystring = {}
+          }
 
-                        return request;
-                      }
-      FunctionConfig: 
+          return request;
+        }
+      FunctionConfig:
         Comment: Rewrite non static requests to index.html for the React SPA
         Runtime: cloudfront-js-1.0
       Name: !Sub
-              - "Api-tokens-portal-react-SPA-rewrite-${ResourceName}"
-              - ResourceName: !If [ IsDev, !Ref pCleanBranch, !Ref pEnvironment ]
+        - Api-tokens-portal-react-SPA-rewrite-${ResourceName}
+        - ResourceName: !If
+            - IsDev
+            - !Ref pCleanBranch
+            - !Ref pEnvironment
 
 Outputs:
   ApiTokensPortalBucketName:
     Value: !Ref ApiTokensPortalBucket
+
   ApiTokensPortalBucketArn:
     Value: !GetAtt ApiTokensPortalBucket.Arn
+
   ApiTokensPortalCloudFrontDistributionId:
     Value: !Ref ApiTokensPortalCloudFrontDistro
