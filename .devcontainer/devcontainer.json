@@ -15,6 +15,7 @@
   },
   "postCreateCommand": "bash .devcontainer/setup.sh && bash .devcontainer/app-bootstrap.sh",
   "postStartCommand": "bash .devcontainer/start-dev-server.sh",
+  "postAttachCommand": "bash .devcontainer/start-dev-server.sh",
   "forwardPorts": [3000],
   "portsAttributes": {
     "3000": {
