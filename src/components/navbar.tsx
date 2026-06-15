@@ -13,47 +13,39 @@ const  AppNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
 
   const useStyles = createStyles((theme, _params, getRef) => {
     const icon = getRef('icon');
+    const navbarBase = theme.colors.green[8];
+    const navbarBorder = theme.colors.green[7];
+    const linkHover = theme.colors.green[7];
+    const linkActive = theme.colors.green[6];
 
     return {
       navbar: {
-        backgroundColor: theme.fn.darken(
-          theme.fn.variant({ variant: 'filled', color: theme.primaryColor }).background!,
-          0.2
-        ),
-        
+        backgroundColor: navbarBase,
+
       },
 
       logo:{
         borderRadius: "10px"
       },
-  
+
       version: {
-        backgroundColor: theme.fn.lighten(
-          theme.fn.variant({ variant: 'filled', color: theme.primaryColor }).background!,
-          0.0
-        ),
+        backgroundColor: navbarBase,
         color: theme.white,
         fontWeight: 700,
       },
-  
+
       header: {
         paddingBottom: theme.spacing.md,
         marginBottom: theme.spacing.md * 1.5,
-        borderBottom: `1px solid ${theme.fn.lighten(
-          theme.fn.variant({ variant: 'filled', color: theme.primaryColor }).background!,
-          0.1
-        )}`,
+        borderBottom: `1px solid ${navbarBorder}`,
       },
-  
+
       footer: {
         paddingTop: theme.spacing.md,
         marginTop: theme.spacing.md,
-        borderTop: `1px solid ${theme.fn.lighten(
-          theme.fn.variant({ variant: 'filled', color: theme.primaryColor }).background!,
-          0.1
-        )}`,
+        borderTop: `1px solid ${navbarBorder}`,
       },
-  
+
       link: {
         ...theme.fn.focusStyles(),
         display: 'flex',
@@ -64,28 +56,22 @@ const  AppNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
         padding: `${theme.spacing.xs}px ${theme.spacing.sm}px`,
         borderRadius: theme.radius.sm,
         fontWeight: 500,
-  
+
         '&:hover': {
-          backgroundColor: theme.fn.lighten(
-            theme.fn.variant({ variant: 'filled', color: theme.primaryColor}).background!,
-            0.1
-          ),
+          backgroundColor: linkHover,
         },
       },
-  
+
       linkIcon: {
         ref: icon,
         color: theme.white,
         opacity: 0.75,
         marginRight: theme.spacing.sm,
       },
-  
+
       linkActive: {
         '&, &:hover': {
-          backgroundColor: theme.fn.lighten(
-            theme.fn.variant({ variant: 'filled', color: theme.primaryColor }).background!,
-            0.15
-          ),
+          backgroundColor: linkActive,
           [`& .${icon}`]: {
             opacity: 0.9,
           },
@@ -124,7 +110,7 @@ const  AppNavbar: React.FC<NavProps> = ({opened, updateNavContent}) => {
       <item.icon className={classes.linkIcon} stroke={1.5} />
       <span>{item.label}</span>
     </a>
-  )); 
+  ));
 
   return (
     <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 230, lg: 230 }}  className={classes.navbar}>
