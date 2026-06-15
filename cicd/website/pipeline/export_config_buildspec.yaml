@@ -86,7 +86,6 @@ phases:
             if [[ -f ${stack}_template_config.j2 ]]; then
               echo Generating the template config for $stack
               cicd/gen_template_config.py  --template ${stack}_template_config.j2 > ${stack}_template_config.json
-              cat ${stack}_template_config.json
             fi
           done
 
@@ -100,13 +99,11 @@ phases:
       - echo VITE_USERDETAILS_URL=$VITE_USERDETAILS_URL >> .env.production
     finally:
       - #echo This always runs
-      - #notify Slack on failure
 
 
   post_build:
     commands:
       - echo all looking good 👍 Stack will be launched on https://${SUB_DOMAIN}.${HOSTED_ZONE}
-      - #notify Slack
 
 artifacts:
   files:
