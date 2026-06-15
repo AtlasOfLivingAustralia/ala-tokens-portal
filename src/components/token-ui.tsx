@@ -91,7 +91,7 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
             >
             </Card.Section>
             <Title align="center" order={3} mt={6}>
-                Simple guide for Client Registration and Token Generation
+                Simple demo guide for Client Registration and Token Generation
             </Title>
             <br />
 
