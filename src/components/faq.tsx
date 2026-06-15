@@ -4,30 +4,34 @@ function Faq(): React.ReactElement {
     return (
         <div style={{padding:"0 20% 0 10%"}}>
           <Accordion>
+            <Accordion.Item label="Can multiple development environments run at once?">
+              There is no limit to the number of development environments you can have running at once. This allows multiple developers to have their own isolated environments, or multiple features developments to run concurrently.
+            </Accordion.Item>
+
             <Accordion.Item label="Why do I need a token?">
-                ALA aggregates data from many providers, and most of these data are open and freely accessible to all. However, some data are private for their intended audience only, such as for user accounts, location data for sensitive species, and administration/edit access to particular projects. 
+                ALA aggregates data from many providers, and most of these data are open and freely accessible to all. However, some data are private for their intended audience only, such as for user accounts, location data for sensitive species, and administration/edit access to particular projects.
                 We use access tokens as a secure method of verifying user access to these specific APIs.
             </Accordion.Item>
 
             <Accordion.Item label="Why do need to register?">
-              Access Tokens (JWTs) need to be associated with a registered application and as such, a Client Application must be registered with the ALA. 
+              Access Tokens (JWTs) need to be associated with a registered application and as such, a Client Application must be registered with the ALA.
               <br />
-              The level of access to resources, i.e. scopes,  an access token has is defined in the Client Application amongst other permissions and restrictions. These attributes will be applied to any and all access tokens generated using the associated Client Id and Secret. 
+              The level of access to resources, i.e. scopes,  an access token has is defined in the Client Application amongst other permissions and restrictions. These attributes will be applied to any and all access tokens generated using the associated Client Id and Secret.
             </Accordion.Item>
 
             <Accordion.Item label="My Client ID and Secret aren’t working. What steps should I try?">
-              The first step is to ensure that the Client ID, Secret, and Scopes being used are correct. To check their validity, please follow the the step-by-step token generation process on this site. 
+              The first step is to ensure that the Client ID, Secret, and Scopes being used are correct. To check their validity, please follow the the step-by-step token generation process on this site.
               <br />
-              Since the step-by-step token generation process requires you to authenticate with your ALA account, please ensure that you have an ALA account that it is activated. 
-              <br />
-              <br />
-              If using one of the other methods of tokens generation listed in the Docs Portal e.g. Client Credentials, Authentication Code Flow, Implicit Flow - please ensure the correct authentication domain <b>auth.ala.org.au</b> is being used and  
-               follow the Postman <a href="https://www.postman.com/sushantcsiro/workspace/ala-common-apis/collection/23926959-0b42d403-9afd-415d-b431-99b4e37691a4" target="_blank">collection</a>  for usage examples. 
-              <br />
-              If you're still unable to generate token using the above steps - your Client credentials might no longer be valid or might not have the necessary permissions to generate tokens with the requested scopes.  
+              Since the step-by-step token generation process requires you to authenticate with your ALA account, please ensure that you have an ALA account that it is activated.
               <br />
               <br />
-              Please contact ALA Support on support@ala.org.au if you believe these credentials are no longer valid or if you are having issues with you ALA account. 
+              If using one of the other methods of tokens generation listed in the Docs Portal e.g. Client Credentials, Authentication Code Flow, Implicit Flow - please ensure the correct authentication domain <b>auth.ala.org.au</b> is being used and
+               follow the Postman <a href="https://www.postman.com/sushantcsiro/workspace/ala-common-apis/collection/23926959-0b42d403-9afd-415d-b431-99b4e37691a4" target="_blank">collection</a>  for usage examples.
+              <br />
+              If you're still unable to generate token using the above steps - your Client credentials might no longer be valid or might not have the necessary permissions to generate tokens with the requested scopes.
+              <br />
+              <br />
+              Please contact ALA Support on support@ala.org.au if you believe these credentials are no longer valid or if you are having issues with you ALA account.
             </Accordion.Item>
 
             <Accordion.Item label="I need help with something else..">
