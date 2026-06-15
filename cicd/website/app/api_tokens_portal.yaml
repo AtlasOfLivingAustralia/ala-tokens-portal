@@ -60,35 +60,34 @@ Resources:
         - Key: Name
           Value: !Ref pSourceBucket
 
-  ApiTokensPortalBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref ApiTokensPortalBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Sid: GrantCloudFrontAccess
-            Action:
-              - s3:GetObject
-            Effect: Allow
-            Resource: !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
-            Principal:
-              Service: cloudfront.amazonaws.com
-            Condition:
-              StringEquals:
-                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ApiTokensPortalCloudFrontDistro}
-          - Sid: TLSAccessOnly
-            Action:
-              - s3:*
-            Effect: Deny
-            Resource:
-              - !Sub arn:aws:s3:::${ApiTokensPortalBucket}
-              - !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
-            Principal: '*'
-            Condition:
-              Bool:
-                aws:SecureTransport: "false"
-
+  #ApiTokensPortalBucketPolicy:
+  #  Type: AWS::S3::BucketPolicy
+  #  Properties:
+  #    Bucket: !Ref ApiTokensPortalBucket
+  #    PolicyDocument:
+  #      Version: "2012-10-17"
+  #      Statement:
+  #        - Sid: GrantCloudFrontAccess
+  #          Action:
+  #            - s3:GetObject
+  #          Effect: Allow
+  #          Resource: !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
+  #          Principal:
+  #            Service: cloudfront.amazonaws.com
+  #          Condition:
+  #            StringEquals:
+  #              AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ApiTokensPortalCloudFrontDistro}
+  #        - Sid: TLSAccessOnly
+  #          Action:
+  #            - s3:*
+  #          Effect: Deny
+  #          Resource:
+  #            - !Sub arn:aws:s3:::${ApiTokensPortalBucket}
+  #            - !Sub arn:aws:s3:::${ApiTokensPortalBucket}/*
+  #          Principal: '*'
+  #          Condition:
+  #            Bool:
+  #              aws:SecureTransport: "false"
   ApiTokensPortalDnsRecord:
     Type: AWS::Route53::RecordSet
     Properties:
