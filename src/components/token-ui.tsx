@@ -24,9 +24,7 @@ import { IconCheck, IconInfoCircle } from '@tabler/icons';
 import { AuthConfig } from '../helpers/config';
 import { useSearchParams } from 'react-router-dom';
 
-
-const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
-
+const UI: React.FC<{ config: AuthConfig }> = ({ config }) => {
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [scope, setScope] = useState("openid email profile ala/roles");
@@ -91,16 +89,24 @@ const  UI: React.FC<{config: AuthConfig}> = ({config}) => {
             >
             </Card.Section>
             <Title align="center" order={3} mt={6}>
+<<<<<<< feature/title-update
                 Simple demo guide for Client Registration and Token Generation
+=======
+                Step by step guide for Client Registration and Token Generation
+>>>>>>> testing
             </Title>
             <br />
 
             <Stepper active={active} onStepClick={setActive} breakpoint="sm">
                 <Stepper.Step label="Client Registration" description="Register Client Application">
                     <br />
+<<<<<<< feature/title-update
                     <Alert icon={<IconInfoCircle size={16} />} color="red"> This is a demonstration of how each development branch has it's own environment identical to production </Alert>
                     <br />
                     <Alert icon={<IconInfoCircle size={16} />} color="blue"> Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</Alert>
+=======
+                    <Alert icon={<IconInfoCircle size={16} />} color="blue"> Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must be registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</Alert>
+>>>>>>> testing
                     <p>If you do not yet have Client Details,  click 'Register' and follow the registration process.</p>
 
                 </Stepper.Step>
