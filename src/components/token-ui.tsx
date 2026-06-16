@@ -89,14 +89,15 @@ const UI: React.FC<{ config: AuthConfig }> = ({ config }) => {
             >
             </Card.Section>
             <Title align="center" order={3} mt={6}>
-                Step by step guide for Client Registration and Token Generation
+                Simple guide for Client Registration and Token Generation
             </Title>
             <br />
 
             <Stepper active={active} onStepClick={setActive} breakpoint="sm">
                 <Stepper.Step label="Client Registration" description="Register Client Application">
                     <br />
-                    <Alert icon={<IconInfoCircle size={16} />} color="blue"> Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</Alert>
+                    <Alert icon={<IconInfoCircle size={16} />} color="red"> This is a demonstration of how each development branch has it's own environment identical to production </Alert>
+                    <br />
                     <Alert icon={<IconInfoCircle size={16} />} color="blue"> Before JSON Web Tokens (JWT) can be generated and used for protected API access, a Client Application must be registered with the ALA. Once registered, a Client ID, and optionally, a Client Secret will be provided to the resource owner i.e. user. for token generation and refresh.</Alert>
                     <p>If you do not yet have Client Details,  click 'Register' and follow the registration process.</p>
 
